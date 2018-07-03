@@ -35,22 +35,25 @@ syms = app.GetCalcRelevantObjects("*.ElmSym")
 
 ldf.Execute()
 
-
-
-Voltages=[Volt.GetAttribute('m:U') for Volt in terms ]
-volt_angle=[Volt.GetAttribute('m:phiu') for Volt in terms ]
-power_factor=[Volt.GetAttribute('m:cosphiout') for Volt in terms ]
-Loads = []
-
-print(Voltages)
-print(volt_angle)
-print(power_factor)
-
-p = [Lod.Set('m:P:bus1') for Lod in loads]
-q = [Lod.GetAttribute('m:Q:bus1') for Lod in loads]
+for load in loads:
+   app.PrintPlain(load.loc_name)
 
 
 
-print(p)
-print(q)
-print(power_factor)
+# Voltages=[Volt.GetAttribute('m:U') for Volt in terms ]
+# volt_angle=[Volt.GetAttribute('m:phiu') for Volt in terms ]
+# power_factor=[Volt.GetAttribute('m:cosphiout') for Volt in terms ]
+# Loads = []
+#
+# print(Voltages)
+# print(volt_angle)
+# print(power_factor)
+#
+# p = [Lod.Set('m:P:bus1') for Lod in loads]
+# q = [Lod.GetAttribute('m:Q:bus1') for Lod in loads]
+#
+#
+#
+# print(p)
+# print(q)
+# print(power_factor)
