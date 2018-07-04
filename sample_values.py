@@ -26,38 +26,36 @@ def powerfactor(p, q):
     power_factor =  p/s
     return power_factor
 
-pvar_list = []
 
-pvar_list = montecarlo(0, 30000,1400)
+def sample_montecarlo():
+    pvar_list = []
+    pvar_list = montecarlo(0, 30000, 1400)
+    qvar_list = []
+    qvar_list = montecarlo(-10000, 10000, 1400)
 
+    final_result = merge(pvar_list, qvar_list)
+    print(final_result)
+    plist, qlist = zip(*final_result)
 
-qvar_list = []
-qvar_list = montecarlo(-10000, 10000,1400)
-
-
-final_result = merge(pvar_list,qvar_list)
-print(final_result)
-plist,qlist = zip(*final_result)
-
-i = len(plist)
-final_result =[]
-validvalues = []
-pfinallist , qfinallist = [], []
-for x in range(i):
-    value = powerfactor(plist[x], qlist[x])
-    if (value > 0.75):
+    i = len(plist)
+    final_result = []
+    validvalues = []
+    pfinallist, qfinallist = [], []
+    for x in range(i):
+        value = powerfactor(plist[x], qlist[x])
+        if (value > 0.75):
             pfinallist.append(plist[x])
             qfinallist.append(qlist[x])
-            #print("Correct value is :", value)
+            # print("Correct value is :", value)
             validvalues = (plist[x], qlist[x], value)
             final_result.append(validvalues)
 
+    final_result = map(list, final_result)
+
+    df = pd.DataFrame(list(final_result), columns=("p_w", "q_var", "power_factor"))
+    df.to_csv('D:\Thessis\Sampled Data.csv')
+    plt.scatter(qlist, plist)
+    plt.show()
 
 
-final_result = map(list, final_result)
-
-df = pd.DataFrame(list(final_result),columns = ("p_w","q_var","power_factor"))
-
-df.to_csv('D:\Thessis\Sampled Data.csv')
-plt.scatter(qlist,plist)
-plt.show()
+x = sample_montecarlo()
