@@ -56,6 +56,7 @@ def sample_montecarlo():
     df.to_csv('D:\Thessis\Sampled Data.csv')
     plt.scatter(qlist, plist)
     plt.show()
+    return df
 
 
-x = sample_montecarlo()
+
