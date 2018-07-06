@@ -46,34 +46,37 @@ df = sample_montecarlo()
 plist = df.p_w.tolist()
 qlist = df.q_var.tolist()
 
-dfplist=[]
-dfqlist=[]
+# for term in terms:
+#    app.PrintPlain(term.loc_name)
+
+
 dfvolt =[]
 dfvolt_angle=[]
 dfpower_factor =[]
-for i in range(10):
+pvalue = []
+qvalue =[]
+for i in range(1000):
+   pvalue.append(0.0)
+   qvalue.append(0.0)
    for load in loads:
       p= choice(plist)
       q= choice(qlist)
       load.plini = p
       load.qlini = q
+      pvalue.append(p)
+      qvalue.append(q)
       #app.PrintPlain(load.loc_name)
 
    ldf.Execute()
    Voltages = [Volt.GetAttribute('m:U') for Volt in terms]
    volt_angle = [Volt.GetAttribute('m:phiu') for Volt in terms]
    power_factor = [Volt.GetAttribute('m:cosphiout') for Volt in terms]
-   print(volt_angle, volt_angle, power_factor)
-   ptemp = [Lod.GetAttribute('m:P:bus1') for Lod in loads]
-   qtemp = [Lod.GetAttribute('m:Q:bus1') for Lod in loads]
-   dfplist.extend(ptemp)
-   dfqlist.extend(qtemp)
    dfvolt.extend(Voltages)
    dfvolt_angle.extend(volt_angle)
    dfpower_factor.extend(power_factor)
 
 
-df = pandas.DataFrame({"P_w":dfplist,"q_var":dfqlist,"Voltages":dfvolt,"volt_angle":dfvolt_angle,"power_factor":dfpower_factor})
+df = pandas.DataFrame({"P_w":pvalue,"q_var":qvalue,"Voltages":dfvolt,"volt_angle":dfvolt_angle,"power_factor":dfpower_factor})
 df.to_csv('D:\Thessis\Sampled Data from PF.csv')
 
 
