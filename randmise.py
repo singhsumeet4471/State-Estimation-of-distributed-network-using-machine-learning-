@@ -1,4 +1,3 @@
-import numpy  as np
 import pandas as pd
 
 
@@ -67,37 +66,6 @@ def add_csv():
 
 
 
-def split():
-    csv1 = pd.read_csv("D:\Thessis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\P_final.csv")
-
-
-    df = np.array_split(csv1,4)
-    df1 = df[0]
-    df2 = df[1]
-    df3 = df[2]
-    df4 = df[3]
-
-    df1.to_csv("D:\Thessis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\P_final_FRaction1.csv")
-    df2.to_csv("D:\Thessis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\P_final_FRaction2.csv")
-    df3.to_csv("D:\Thessis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\P_final_FRaction3.csv")
-    df4.to_csv("D:\Thessis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\P_final_FRaction4.csv")
-
-    csv = pd.read_csv("D:\Thessis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\Q_final.csv")
-
-    dfQ = np.array_split(csv,4)
-    df1Q = dfQ[0]
-    df2Q = dfQ[1]
-    df3Q = dfQ[2]
-    df4Q = dfQ[3]
-    df1Q.to_csv("D:\Thessis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\Q_final_FRaction1.csv")
-    df2Q.to_csv("D:\Thessis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\Q_final_FRaction2.csv")
-    df3Q.to_csv("D:\Thessis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\Q_final_FRaction3.csv")
-    df4Q.to_csv("D:\Thessis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\Q_final_FRaction4.csv")
-
-
-
-
-split()
 
 
 

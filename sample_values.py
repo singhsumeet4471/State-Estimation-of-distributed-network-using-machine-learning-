@@ -53,7 +53,7 @@ def sample_montecarlo():
     final_result = map(list, final_result)
 
     df = pd.DataFrame(list(final_result), columns=("p_w", "q_var", "power_factor"))
-    df.to_csv('D:\Thessis\Sampled Data.csv')
+    df.to_csv('D:\Thesis\Sampled Data.csv')
     plt.scatter(qlist, plist)
     plt.show()
     return df

@@ -5,7 +5,7 @@ import pandas
 sys.path.append(r"C:\Program Files\DIgSILENT\PowerFactory 2018 SP3\Python\3.6")
 import powerfactory as pf
 from sample_values import sample_montecarlo
-from random import choice
+import random
 from randmise import add_csv
 import matplotlib.pyplot as plt
 
@@ -46,8 +46,8 @@ syms = app.GetCalcRelevantObjects("*.ElmSym")
 def sample_moduledata():
     df = sample_montecarlo()
 
-    plist = df.p_w.tolist()
-    qlist = df.q_var.tolist()
+    plist = df['p_w'].tolist()
+    qlist = df['q_var'].tolist()
 
     dfvolt = [[] for x in range(11)]
     dfvolt_angle = [[] for x in range(11)]
@@ -60,34 +60,28 @@ def sample_moduledata():
     q1 = []
 
 
-    for i in range(len(plist)):
-        #pvalue.append(0.0)
-        #qvalue.append(0.0)
+    for i in range(3000):
+
         for load in loads:
-            p = choice(plist)
-            q = choice(qlist)
+            p = random.choice(plist)
+            q = random.choice(qlist)
             load.plini = p
             load.qlini = q
-            #pvalue.append(p)
-            #qvalue.append(q)
+
             # app.PrintPlain(load.loc_name)
 
         ldf.Execute()
 
         pval = [Lod.GetAttribute('m:P:bus1') for Lod in loads]
-        skip = False
+
         p1.append(0.0)
-        for pvar, plist in zip(pval, pvalue):
-            plist.append(pvar)
-
-
-
-
+        for pvar, pnew in zip(pval, pvalue):
+            pnew.append(pvar)
 
         q1.append(0.0)
         q = [Lod.GetAttribute('m:Q:bus1') for Lod in loads]
-        for qvar, qlist in zip(q, qvalue):
-            qlist.append(qvar)
+        for qvar, qnew in zip(q, qvalue):
+            qnew.append(qvar)
 
 
         Voltages = [Volt.GetAttribute('m:U') for Volt in terms]
@@ -102,15 +96,8 @@ def sample_moduledata():
         for pfvar, pflist in zip(power_factor, dfpower_factor):
             pflist.append(pfvar)
 
-
-
-
-
-
-
-
-    pcheck = [p1]+pvalue
-    qcheck = [q1]+qvalue
+    pcheck = [p1] + pvalue
+    qcheck = [q1] + qvalue
     dflist = []
     i=0
 
@@ -122,7 +109,7 @@ def sample_moduledata():
         dflist.append(df)
 
     final_df = pandas.concat(dflist,axis=1)
-    final_df.to_csv('D:\Thessis\Sampled monte carlo Data from PF.csv')
+    final_df.to_csv('D:\Thesis\Sampled monte carlo Data from PF.csv')
 
 
 def sample_relatimedata():
@@ -216,10 +203,10 @@ def sample_relatimedata():
         dflist.append(df)
 
     final_df = pandas.concat(dflist, axis=1)
-    final_df.to_csv('D:\Thessis\Sampled RealTime Data from PF.csv')
+    final_df.to_csv('D:\Thesis\Sampled RealTime Data from PF.csv')
 
 
-sample_relatimedata()
+sample_moduledata()
 
 
 # Loads = []
