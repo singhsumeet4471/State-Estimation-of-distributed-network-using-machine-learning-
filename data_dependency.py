@@ -9,6 +9,7 @@ def data_corelation_spring_layout(file,value):
     df = pd.read_csv(file)
 
     correlation = df.corr()
+    #correlation.to_csv('D:\Thesis\Sampled monte carlo Data_correaltion_revised.csv')
     links = correlation.stack().reset_index()
 
     print(links)
@@ -16,11 +17,12 @@ def data_corelation_spring_layout(file,value):
 
     links_filtered=links.loc[ (links['value'] > value) & (links['var1'] != links['var2']) ]
     G=nx.from_pandas_edgelist(links_filtered, 'var1', 'var2')
+    g = G.to_directed()
 
-    pos = nx.spring_layout(G, k=0.3*1/np.sqrt(len(G.nodes())), iterations=20)
+    pos = nx.spring_layout(g, k=0.3*1/np.sqrt(len(G.nodes())), iterations=20)
     plt.figure(3, figsize=(40, 40))
-    nx.draw(G, pos=pos)
-    nx.draw_networkx_labels(G, pos=pos)
+    nx.draw(g, pos=pos)
+    nx.draw_networkx_labels(g, pos=pos,arrows=True)
     plt.show()
 
 
@@ -44,12 +46,12 @@ def data_dependency_kamada_kawai_layout(file,value):
 
 
 
-data_dependency_kamada_kawai_layout("D:\Thesis\Sampled monte carlo Data from PF.csv",1)
-data_dependency_kamada_kawai_layout("D:\Thesis\Sampled Realtime Data from PF.csv",0.8)
+#data_dependency_kamada_kawai_layout("D:\Thesis\Sampled monte carlo Data from PF.csv",1)
+#data_dependency_kamada_kawai_layout("D:\Thesis\Sampled Realtime Data from PF.csv",0.8)
 
 
-# data_corelation_spring_layout("D:\Thesis\Sampled monte carlo Data from PF.csv",1)
-# data_corelation_spring_layout("D:\Thesis\Sampled Realtime Data from PF.csv",0.8)
+#data_corelation_spring_layout("D:\Thesis\Sampled monte carlo Data from PF.csv",0.3)
+data_corelation_spring_layout("D:\Thesis\Sampled Realtime Data from PF.csv",0.8)
 
 
 
