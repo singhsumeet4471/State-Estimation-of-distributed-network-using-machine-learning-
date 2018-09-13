@@ -18,11 +18,13 @@ def data_corelation_spring_layout(file,value):
     links_filtered=links.loc[ (links['value'] > value) & (links['var1'] != links['var2']) ]
     G=nx.from_pandas_edgelist(links_filtered, 'var1', 'var2')
     g = G.to_directed()
+    gen = nx.dfs_tree(g)
 
-    pos = nx.spring_layout(g, k=0.3*1/np.sqrt(len(G.nodes())), iterations=20)
+
+    pos = nx.spring_layout(gen, k=0.3*1/np.sqrt(len(G.nodes())), iterations=20)
     plt.figure(3, figsize=(40, 40))
-    nx.draw(g, pos=pos)
-    nx.draw_networkx_labels(g, pos=pos,arrows=True)
+    nx.draw(gen, pos=pos)
+    nx.draw_networkx_labels(gen, pos=pos,arrows=True)
     plt.show()
 
 
@@ -37,11 +39,13 @@ def data_dependency_kamada_kawai_layout(file,value):
 
     links_filtered = links.loc[(links['value'] > value) & (links['var1'] != links['var2'])]
     G = nx.from_pandas_edgelist(links_filtered, 'var1', 'var2')
+    g = G.to_directed()
+    gen = nx.dfs_tree(g)
 
-    pos = nx.kamada_kawai_layout(G)
+    pos = nx.kamada_kawai_layout(gen)
     plt.figure(3, figsize=(40, 40))
-    nx.draw(G, pos=pos)
-    nx.draw_networkx_labels(G, pos=pos)
+    nx.draw(gen, pos=pos)
+    nx.draw_networkx_labels(gen, pos=pos)
     plt.show()
 
 
