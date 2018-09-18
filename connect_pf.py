@@ -206,7 +206,90 @@ def sample_relatimedata():
     final_df.to_csv('D:\Thesis\Sampled RealTime Data from PF.csv')
 
 
-sample_moduledata()
+def sample_sensitive_analysis():
+    plist, qlist = add_csv()
+
+    plt.scatter(qlist, plist)
+    plt.show()
+    dfvolt = [[] for x in range(11)]
+    dfvolt_angle = [[] for x in range(11)]
+    dfpower_factor = [[] for x in range(11)]
+    pvalue = [[] for x in range(11)]
+    qvalue = [[] for x in range(11)]
+    p1 = []
+    q1 = []
+    i = 0
+    ploadList = []
+    qloadlist = []
+    w = 0
+
+    for p, q in zip(plist, qlist):
+
+        w += 1
+        if (i < 10):
+            i += 1
+            if(i==5):
+                ploadList.append(1716)
+                qloadlist.append(206)
+            else:
+                ploadList.append(p)
+                qloadlist.append(q)
+
+        if (w == 1500 and i == 10):
+
+            w = 0
+
+            for ploop, qlopp, load in zip(ploadList, qloadlist, loads):
+                load.plini = ploop
+                load.qlini = ploop
+
+            i = 0
+            ploadList = []
+            qloadlist = []
+            ldf.Execute()
+
+            pval = [Lod.GetAttribute('m:P:bus1') for Lod in loads]
+
+            p1.append(0.0)
+            for pvar, plist in zip(pval, pvalue):
+                plist.append(pvar)
+
+            q1.append(0.0)
+            q = [Lod.GetAttribute('m:Q:bus1') for Lod in loads]
+            for qvar, qlist in zip(q, qvalue):
+                qlist.append(qvar)
+
+            Voltages = [Volt.GetAttribute('m:U') for Volt in terms]
+            for vvar, vlist in zip(Voltages, dfvolt):
+                vlist.append(vvar)
+
+            volt_angle = [Volt.GetAttribute('m:phiu') for Volt in terms]
+            for vavar, valist in zip(volt_angle, dfvolt_angle):
+                valist.append(vavar)
+
+            power_factor = [Volt.GetAttribute('m:cosphiout') for Volt in terms]
+            for pfvar, pflist in zip(power_factor, dfpower_factor):
+                pflist.append(pfvar)
+
+    pcheck = [p1] + pvalue
+    qcheck = [q1] + qvalue
+    dflist = []
+    i = 0
+
+    for pfinal, qfinal, vfinal, vafinal, pffinal in zip(pcheck, qcheck, dfvolt, dfvolt_angle, dfpower_factor):
+        df = pandas.DataFrame(
+            {'{}{}'.format("p", i): pandas.Series(pfinal), '{}{}'.format("q", i): pandas.Series(qfinal),
+             '{}{}'.format("Volatge", i): pandas.Series(vfinal),
+             '{}{}'.format("Volatage angle", i): pandas.Series(vafinal),
+             '{}{}'.format("Powerfactor", i): pandas.Series(pffinal)})
+        i += 1
+        dflist.append(df)
+
+    final_df = pandas.concat(dflist, axis=1)
+    final_df.to_csv('D:\Thesis\Sampled sensitivity analysis from PF.csv')
+
+
+sample_sensitive_analysis()
 
 
 # Loads = []
