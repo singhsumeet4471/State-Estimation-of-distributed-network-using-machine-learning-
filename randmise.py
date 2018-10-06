@@ -65,9 +65,36 @@ def add_csv():
     return plist,qlist
 
 
+def concat_df():
 
 
 
 
+    df1 = pd.read_csv('D:\Thesis\Sensitivity analysis\P1 Sampled sensitivity analysis_constant from PF.csv')
+    df2 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q1 Sampled sensitivity analysis_constant from PF.csv')
+    df3 = pd.read_csv('D:\Thesis\Sensitivity analysis\P2 Sampled sensitivity analysis_constant from PF.csv')
+    df4 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q2 Sampled sensitivity analysis_constant from PF.csv')
+    df5 = pd.read_csv('D:\Thesis\Sensitivity analysis\P3 Sampled sensitivity analysis_constant from PF.csv')
+    df6 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q3 Sampled sensitivity analysis_constant from PF.csv')
+    df7 = pd.read_csv('D:\Thesis\Sensitivity analysis\P4 Sampled sensitivity analysis_constant from PF.csv')
+    df8 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q4 Sampled sensitivity analysis_constant from PF.csv')
+    df9 = pd.read_csv('D:\Thesis\Sensitivity analysis\P5 Sampled sensitivity analysis_constant from PF.csv')
+    df10 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q5 Sampled sensitivity analysis_constant from PF.csv')
+    df11 = pd.read_csv('D:\Thesis\Sensitivity analysis\P6 Sampled sensitivity analysis_constant from PF.csv')
+    df12 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q6 Sampled sensitivity analysis_constant from PF.csv')
+    df13 = pd.read_csv('D:\Thesis\Sensitivity analysis\P7 Sampled sensitivity analysis_constant from PF.csv')
+    df14 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q7 Sampled sensitivity analysis_constant from PF.csv')
+    df15 = pd.read_csv('D:\Thesis\Sensitivity analysis\P8 Sampled sensitivity analysis_constant from PF.csv')
+    df16 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q8 Sampled sensitivity analysis_constant from PF.csv')
+    df17 = pd.read_csv('D:\Thesis\Sensitivity analysis\P9 Sampled sensitivity analysis_constant from PF.csv')
+    df18 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q9 Sampled sensitivity analysis_constant from PF.csv')
+    df19 = pd.read_csv('D:\Thesis\Sensitivity analysis\P10 Sampled sensitivity analysis_constant from PF.csv')
+    df20 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q10 Sampled sensitivity analysis_constant from PF.csv')
 
+    bigdata = pd.concat([df1, df2, df3,df4,df5,df6,df7,df8,df9,df10,df11,df12,df13,df14,df15,df16,df17,df18,df19,df20], ignore_index=True)
+    bigdata.to_csv('D:\Thesis\Sensitivity analysis final.csv')
+
+
+
+concat_df()
 
