@@ -96,5 +96,88 @@ def concat_df():
 
 
 
-concat_df()
+def calculate_max_min_absolute_values():
+    df = pd.read_csv('D:\Thesis\Sensitivity analysis final.csv')
+    pmax, pmin = 0, 100
+    qmax, qmin = 0,100
+    vmax, vmin = 0, 100
+    vamax, vamin = 0, 100
+    normalized_df = pd.DataFrame()
+    for i in range(1,10):
+        pmaxtemp, pmintemp = 0, 0
+        pmaxtemp = df['{}{}'.format("p", i)].max()
+        pmintemp = df['{}{}'.format("p", i)].min()
+        if (pmaxtemp > pmax):
+            pmax = pmaxtemp
+        if (pmintemp < pmin):
+            pmin = pmintemp
+
+    for i in range(1, 10):
+        normalized_df['{}{}'.format("p", i)] = (df['{}{}'.format("p", i)] - pmin) / (pmax - pmin)
+
+    for i in range(1,10):
+        maxtemp, mintemp = 0, 0
+        maxtemp = df['{}{}'.format("q", i)].max()
+        mintemp = df['{}{}'.format("q", i)].min()
+        if (maxtemp > qmax):
+            qmax = maxtemp
+        if (mintemp < qmin):
+            qmin = mintemp
+
+    for i in range(1, 10):
+        normalized_df['{}{}'.format("q", i)] = (df['{}{}'.format("q", i)] - qmin) / (qmax - qmin)
+
+
+    for i in range(1,10):
+        maxtemp, mintemp = 0, 0
+        maxtemp = df['{}{}'.format("Voltage", i)].max()
+        mintemp = df['{}{}'.format("Voltage", i)].min()
+        if (maxtemp > vmax):
+            vmax = maxtemp
+        if (mintemp < vmin):
+            vmin = mintemp
+
+    for i in range(1, 10):
+        normalized_df['{}{}'.format("Voltage", i)] = (df['{}{}'.format("Voltage", i)] - vmin) / (vmax - vmin)
+
+
+
+    for i in range(1,10):
+        maxtemp, mintemp = 0, 0
+        maxtemp = df['{}{}'.format("Voltage angle", i)].max()
+        mintemp = df['{}{}'.format("Voltage angle", i)].min()
+        if (maxtemp > vamax):
+            vamax = maxtemp
+        if (mintemp < vamin):
+            vamin = mintemp
+
+    for i in range(1, 10):
+        normalized_df['{}{}'.format("Voltage angle", i)] = (df['{}{}'.format("Voltage angle", i)] - vamin) / (vamax - vamin)
+
+
+    print(normalized_df)
+    return normalized_df
+
+
+
+
+def get_top_abs_correlations(df):
+    column_name = list(df)
+    df_list =[]
+    au_corr = df.corr().abs().unstack().reset_index()
+    au_corr.columns = ['var1', 'var2', 'value']
+    temp_df = pd.DataFrame()
+    for names in column_name:
+        temp_df = au_corr.loc[au_corr['var1']== names]
+        temp_df = temp_df.nlargest(5,'value')
+        df_list.append(temp_df)
+    final_df = pd.concat(df_list)
+    #labels_to_drop = get_redundant_pairs(df)
+    #au_corr = au_corr.drop(labels=labels_to_drop).sort_values(ascending=False)
+
+    print(final_df)
+
+    return final_df
+
+calculate_max_min_absolute_values()
 
