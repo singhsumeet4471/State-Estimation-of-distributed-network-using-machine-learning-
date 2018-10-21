@@ -1,15 +1,11 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-
+import hashlib
 import os
 import sys
-from hashlib import md5
+import warnings
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-import warnings
+import sphinx
 
 from matplotlib import rcParams
 from matplotlib.mathtext import MathTextParser
@@ -55,7 +51,7 @@ def latex2png(latex, filename, fontset='cm'):
             depth = mathtext_parser.to_png(filename, latex, dpi=100)
         except:
             warnings.warn("Could not render math expression %s" % latex,
-                          Warning)
+                          Warning, stacklevel=2)
             depth = 0
     rcParams['mathtext.fontset'] = orig_fontset
     sys.stdout.write("#")
@@ -66,7 +62,7 @@ def latex2png(latex, filename, fontset='cm'):
 def latex2html(node, source):
     inline = isinstance(node.parent, nodes.TextElement)
     latex = node['latex']
-    name = 'math-%s' % md5(latex.encode()).hexdigest()[-10:]
+    name = 'math-%s' % hashlib.md5(latex.encode()).hexdigest()[-10:]
 
     destdir = os.path.join(setup.app.builder.outdir, '_images', 'mathmpl')
     if not os.path.exists(destdir):
@@ -115,9 +111,13 @@ def setup(app):
     app.add_node(latex_math,
                  html=(visit_latex_math_html, depart_latex_math_html),
                  latex=(visit_latex_math_latex, depart_latex_math_latex))
-    app.add_role('math', math_role)
-    app.add_directive('math', math_directive,
+    app.add_role('mathmpl', math_role)
+    app.add_directive('mathmpl', math_directive,
                       True, (0, 0, 0), **options_spec)
+    if sphinx.version_info < (1, 8):
+        app.add_role('math', math_role)
+        app.add_directive('math', math_directive,
+                          True, (0, 0, 0), **options_spec)
 
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata

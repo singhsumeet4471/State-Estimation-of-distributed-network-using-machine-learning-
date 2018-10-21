@@ -1,15 +1,12 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
+from numbers import Number
 
 import matplotlib.axes as maxes
-import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import SubplotSpec
 
-from .axes_divider import Size, SubplotDivider, LocatableAxes, Divider
+from .axes_divider import Size, SubplotDivider, Divider
 from .colorbar import Colorbar
+from .mpl_axes import Axes
 
 
 def _extend_axes_pad(value):
@@ -33,8 +30,7 @@ def _tick_only(ax, bottom_on, left_on):
 
 class CbarAxesBase(object):
 
-    def colorbar(self, mappable, **kwargs):
-        locator = kwargs.pop("locator", None)
+    def colorbar(self, mappable, *, locator=None, **kwargs):
 
         if locator is None:
             if "ticks" not in kwargs:
@@ -46,7 +42,6 @@ class CbarAxesBase(object):
             else:
                 kwargs["ticks"] = locator
 
-        self._hold = True
         if self.orientation in ["top", "bottom"]:
             orientation = "horizontal"
         else:
@@ -106,19 +101,15 @@ class CbarAxesBase(object):
         #axis.label.set_visible(b)
 
 
-class CbarAxes(CbarAxesBase, LocatableAxes):
-    def __init__(self, *kl, **kwargs):
-        orientation = kwargs.pop("orientation", None)
-        if orientation is None:
-            raise ValueError("orientation must be specified")
+class CbarAxes(CbarAxesBase, Axes):
+    def __init__(self, *args, orientation, **kwargs):
         self.orientation = orientation
         self._default_label_on = True
         self.locator = None
-
-        super(LocatableAxes, self).__init__(*kl, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def cla(self):
-        super(LocatableAxes, self).cla()
+        super().cla()
         self._config_axes()
 
 
@@ -132,7 +123,7 @@ class Grid(object):
     be easily done in matplotlib. AxesGrid is used in such case.
     """
 
-    _defaultLocatableAxesClass = LocatableAxes
+    _defaultAxesClass = Axes
 
     def __init__(self, fig,
                  rect,
@@ -179,7 +170,7 @@ class Grid(object):
         if ngrids is None:
             ngrids = self._nrows * self._ncols
         else:
-            if (ngrids > self._nrows * self._ncols) or (ngrids <= 0):
+            if not 0 < ngrids <= self._nrows * self._ncols:
                 raise Exception("")
 
         self.ngrids = ngrids
@@ -192,12 +183,12 @@ class Grid(object):
         self._direction = direction
 
         if axes_class is None:
-            axes_class = self._defaultLocatableAxesClass
+            axes_class = self._defaultAxesClass
             axes_class_args = {}
         else:
-            if (type(axes_class)) == type and \
-                   issubclass(axes_class,
-                              self._defaultLocatableAxesClass.Axes):
+            if (isinstance(axes_class, type)
+                    and issubclass(axes_class,
+                                   self._defaultAxesClass.Axes)):
                 axes_class_args = {}
             else:
                 axes_class, axes_class_args = axes_class
@@ -208,7 +199,7 @@ class Grid(object):
 
         h = []
         v = []
-        if isinstance(rect, six.string_types) or cbook.is_numlike(rect):
+        if isinstance(rect, (str, Number)):
             self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
                                            aspect=False)
         elif isinstance(rect, SubplotSpec):
@@ -513,7 +504,7 @@ class ImageGrid(Grid):
         self._direction = direction
 
         if axes_class is None:
-            axes_class = self._defaultLocatableAxesClass
+            axes_class = self._defaultAxesClass
             axes_class_args = {}
         else:
             if isinstance(axes_class, maxes.Axes):
@@ -529,7 +520,7 @@ class ImageGrid(Grid):
 
         h = []
         v = []
-        if isinstance(rect, six.string_types) or cbook.is_numlike(rect):
+        if isinstance(rect, (str, Number)):
             self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
                                            aspect=aspect)
         elif isinstance(rect, SubplotSpec):
@@ -768,4 +759,3 @@ class ImageGrid(Grid):
 
 
 AxesGrid = ImageGrid
-

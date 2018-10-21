@@ -6,19 +6,16 @@ http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-w
 (http://stackoverflow.com/users/66549/doug)
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import xrange
 import numpy as np
 
 __all__ = ['stackplot']
 
 
-def stackplot(axes, x, *args, **kwargs):
+def stackplot(axes, x, *args,
+              labels=(), colors=None, baseline='zero',
+              **kwargs):
     """
-    Draws a stacked area plot.
+    Draw a stacked area plot.
 
     Parameters
     ----------
@@ -32,7 +29,7 @@ def stackplot(axes, x, *args, **kwargs):
             stackplot(x, y)               # where y is MxN
             stackplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
 
-    baseline : ['zero' | 'sym' | 'wiggle' | 'weighted_wiggle']
+    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
         Method used to calculate the baseline:
 
         - ``'zero'``: Constant zero baseline, i.e. a simple stacked plot.
@@ -63,13 +60,10 @@ def stackplot(axes, x, *args, **kwargs):
 
     y = np.row_stack(args)
 
-    labels = iter(kwargs.pop('labels', []))
-
-    colors = kwargs.pop('colors', None)
+    labels = iter(labels)
     if colors is not None:
         axes.set_prop_cycle(color=colors)
 
-    baseline = kwargs.pop('baseline', 'zero')
     # Assume data passed has not been 'stacked', so stack it here.
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))
@@ -118,7 +112,7 @@ def stackplot(axes, x, *args, **kwargs):
     r = [coll]
 
     # Color between array i-1 and array i
-    for i in xrange(len(y) - 1):
+    for i in range(len(y) - 1):
         color = axes._get_lines.get_next_color()
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    facecolor=color, label=next(labels, None),

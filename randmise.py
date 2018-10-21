@@ -168,7 +168,7 @@ def get_top_abs_correlations(df):
     au_corr.columns = ['var1', 'var2', 'value']
     temp_df = pd.DataFrame()
     for names in column_name:
-        temp_df = au_corr.loc[au_corr['var1']== names]
+        temp_df = au_corr.loc[(au_corr['var1']== names) & (au_corr['var2']!= names)  ]
         temp_df = temp_df.nlargest(5,'value')
         df_list.append(temp_df)
     final_df = pd.concat(df_list)

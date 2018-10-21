@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 
 Conventions:
@@ -15,9 +14,6 @@ will allow it to change to 0.3 later.  Note that these values are still just
 other constrains.
 
 """
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import itertools
 import kiwisolver as kiwi

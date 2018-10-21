@@ -1,21 +1,19 @@
 """
 These are classes to support contour plotting and labelling for the Axes class.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-import six
-from six.moves import xrange
-
+from numbers import Integral
 import warnings
-import matplotlib as mpl
+
 import numpy as np
 from numpy import ma
+
+import matplotlib as mpl
 import matplotlib._contour as _contour
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
-import matplotlib.colors as colors
+import matplotlib.colors as mcolors
 import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
 import matplotlib.text as text
@@ -54,42 +52,46 @@ class ClabelText(text.Text):
 class ContourLabeler(object):
     """Mixin to provide labelling capability to `.ContourSet`."""
 
-    def clabel(self, *args, **kwargs):
+    def clabel(self, *args,
+               fontsize=None, inline=True, inline_spacing=5, fmt='%1.3f',
+               colors=None, use_clabeltext=False, manual=False,
+               rightside_up=True):
         """
         Label a contour plot.
 
         Call signature::
 
-          clabel(cs, **kwargs)
+          clabel(cs, [levels,] **kwargs)
 
         Adds labels to line contours in *cs*, where *cs* is a
         :class:`~matplotlib.contour.ContourSet` object returned by
-        contour.
-
-        ::
-
-          clabel(cs, v, **kwargs)
-
-        only labels contours listed in *v*.
+        ``contour()``.
 
         Parameters
         ----------
+        cs : `.ContourSet`
+            The ContourSet to label.
+
+        levels : array-like, optional
+            A list of level values, that should be labeled. The list must be
+            a subset of ``cs.levels``. If not given, all levels are labeled.
+
         fontsize : string or float, optional
             Size in points or relative size e.g., 'smaller', 'x-large'.
-            See `Text.set_size` for accepted string values.
+            See `.Text.set_size` for accepted string values.
 
-        colors :
-            Color of each label
+        colors : color-spec, optional
+            The label colors:
 
-            - if *None*, the color of each label matches the color of
-              the corresponding contour
+            - If *None*, the color of each label matches the color of
+              the corresponding contour.
 
-            - if one string color, e.g., *colors* = 'r' or *colors* =
-              'red', all labels will be plotted in this color
+            - If one string color, e.g., *colors* = 'r' or *colors* =
+              'red', all labels will be plotted in this color.
 
-            - if a tuple of matplotlib color args (string, float, rgb, etc),
+            - If a tuple of matplotlib color args (string, float, rgb, etc),
               different labels will be plotted in different colors in the order
-              specified
+              specified.
 
         inline : bool, optional
             If ``True`` the underlying contour is removed where the label is
@@ -131,10 +133,15 @@ class ContourLabeler(object):
             or minus 90 degrees from level. Default is ``True``.
 
         use_clabeltext : bool, optional
-            If ``True``, `ClabelText` class (instead of `Text`) is used to
+            If ``True``, `.ClabelText` class (instead of `.Text`) is used to
             create labels. `ClabelText` recalculates rotation angles
             of texts during the drawing time, therefore this can be used if
             aspect of the axes changes. Default is ``False``.
+
+        Returns
+        -------
+        labels
+            A list of `.Text` instances for the labels.
         """
 
         """
@@ -150,21 +157,15 @@ class ContourLabeler(object):
         `BlockingContourLabeler` (case of manual label placement).
         """
 
-        fontsize = kwargs.get('fontsize', None)
-        inline = kwargs.get('inline', 1)
-        inline_spacing = kwargs.get('inline_spacing', 5)
-        self.labelFmt = kwargs.get('fmt', '%1.3f')
-        _colors = kwargs.get('colors', None)
+        self.labelFmt = fmt
+        self._use_clabeltext = use_clabeltext
+        # Detect if manual selection is desired and remove from argument list.
+        self.labelManual = manual
+        self.rightside_up = rightside_up
 
-        self._use_clabeltext = kwargs.get('use_clabeltext', False)
-
-        # Detect if manual selection is desired and remove from argument list
-        self.labelManual = kwargs.get('manual', False)
-
-        self.rightside_up = kwargs.get('rightside_up', True)
         if len(args) == 0:
             levels = self.levels
-            indices = list(xrange(len(self.cvalues)))
+            indices = list(range(len(self.cvalues)))
         elif len(args) == 1:
             levlabs = list(args[0])
             indices, levels = [], []
@@ -185,14 +186,14 @@ class ContourLabeler(object):
         font_size_pts = self.labelFontProps.get_size_in_points()
         self.labelFontSizeList = [font_size_pts] * len(levels)
 
-        if _colors is None:
+        if colors is None:
             self.labelMappable = self
             self.labelCValueList = np.take(self.cvalues, self.labelIndiceList)
         else:
-            cmap = colors.ListedColormap(_colors, N=len(self.labelLevelList))
-            self.labelCValueList = list(xrange(len(self.labelLevelList)))
+            cmap = mcolors.ListedColormap(colors, N=len(self.labelLevelList))
+            self.labelCValueList = list(range(len(self.labelLevelList)))
             self.labelMappable = cm.ScalarMappable(cmap=cmap,
-                                                   norm=colors.NoNorm())
+                                                   norm=mcolors.NoNorm())
 
         self.labelXYs = []
 
@@ -212,15 +213,15 @@ class ContourLabeler(object):
         else:
             self.labels(inline, inline_spacing)
 
-        # Hold on to some old attribute names.  These are deprecated and will
-        # be removed in the near future (sometime after 2008-08-01), but
-        # keeping for now for backwards compatibility
-        self.cl = self.labelTexts
-        self.cl_xy = self.labelXYs
-        self.cl_cvalues = self.labelCValues
-
         self.labelTextsList = cbook.silent_list('text.Text', self.labelTexts)
         return self.labelTextsList
+
+    cl = property(cbook.deprecated("3.0", alternative="labelTexts")(
+        lambda self: self.labelTexts))
+    cl_xy = property(cbook.deprecated("3.0", alternative="labelXYs")(
+        lambda self: self.labelXYs))
+    cl_cvalues = property(cbook.deprecated("3.0", alternative="labelCValues")(
+        lambda self: self.labelCValues))
 
     def print_label(self, linecontour, labelwidth):
         "Return *False* if contours are too short for a label."
@@ -263,7 +264,7 @@ class ContourLabeler(object):
         """
         Return the width of the label in points.
         """
-        if not isinstance(lev, six.string_types):
+        if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
 
         lev, ismath = text.Text.is_math_text(lev)
@@ -320,7 +321,7 @@ class ContourLabeler(object):
 
     def get_text(self, lev, fmt):
         """Get the text of the label."""
-        if isinstance(lev, six.string_types):
+        if isinstance(lev, str):
             return lev
         else:
             if isinstance(fmt, dict):
@@ -791,7 +792,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         levels for filled contours.  See :meth:`_process_colors`.
     """
 
-    def __init__(self, ax, *args, **kwargs):
+    def __init__(self, ax, *args,
+                 levels=None, filled=False, linewidths=None, linestyles=None,
+                 alpha=None, origin=None, extent=None,
+                 cmap=None, colors=None, norm=None, vmin=None, vmax=None,
+                 extend='neither', antialiased=None,
+                 **kwargs):
         """
         Draw contour lines or filled regions, depending on
         whether keyword arg *filled* is ``False`` (default) or ``True``.
@@ -837,23 +843,17 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             `~axes.Axes.contour`.
         """
         self.ax = ax
-        self.levels = kwargs.pop('levels', None)
-        self.filled = kwargs.pop('filled', False)
-        self.linewidths = kwargs.pop('linewidths', None)
-        self.linestyles = kwargs.pop('linestyles', None)
-
+        self.levels = levels
+        self.filled = filled
+        self.linewidths = linewidths
+        self.linestyles = linestyles
         self.hatches = kwargs.pop('hatches', [None])
-
-        self.alpha = kwargs.pop('alpha', None)
-        self.origin = kwargs.pop('origin', None)
-        self.extent = kwargs.pop('extent', None)
-        cmap = kwargs.pop('cmap', None)
-        self.colors = kwargs.pop('colors', None)
-        norm = kwargs.pop('norm', None)
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
-        self.extend = kwargs.pop('extend', 'neither')
-        self.antialiased = kwargs.pop('antialiased', None)
+        self.alpha = alpha
+        self.origin = origin
+        self.extent = extent
+        self.colors = colors
+        self.extend = extend
+        self.antialiased = antialiased
         if self.antialiased is None and self.filled:
             self.antialiased = False  # eliminate artifacts; we are not
                                       # stroking the boundaries.
@@ -863,14 +863,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         self.nchunk = kwargs.pop('nchunk', 0)
         self.locator = kwargs.pop('locator', None)
-        if (isinstance(norm, colors.LogNorm)
+        if (isinstance(norm, mcolors.LogNorm)
                 or isinstance(self.locator, ticker.LogLocator)):
             self.logscale = True
             if norm is None:
-                norm = colors.LogNorm()
-            if self.extend is not 'neither':
-                raise ValueError('extend kwarg does not work yet with log '
-                                 ' scale')
+                norm = mcolors.LogNorm()
         else:
             self.logscale = False
 
@@ -906,13 +903,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             # extend_max case we don't need to worry about passing more colors
             # than ncolors as ListedColormap will clip.
             total_levels = ncolors + int(extend_min) + int(extend_max)
-            if (len(self.colors) == total_levels and
-                    any([extend_min, extend_max])):
+            if len(self.colors) == total_levels and (extend_min or extend_max):
                 use_set_under_over = True
                 if extend_min:
                     i0 = 1
 
-            cmap = colors.ListedColormap(self.colors[i0:None], N=ncolors)
+            cmap = mcolors.ListedColormap(self.colors[i0:None], N=ncolors)
 
             if use_set_under_over:
                 if extend_min:
@@ -1178,6 +1174,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         Select contour levels to span the data.
 
+        The target number of levels, *N*, is used only when the
+        scale is not log and default locator is used.
+
         We need two more levels for filled contours than for
         line contours, because for the latter we need to specify
         the lower and upper boundary of each range. For example,
@@ -1185,6 +1184,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
         """
+        self._auto = True
         if self.locator is None:
             if self.logscale:
                 self.locator = ticker.LogLocator()
@@ -1192,8 +1192,27 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
 
         lev = self.locator.tick_values(self.zmin, self.zmax)
-        self._auto = True
-        return lev
+
+        try:
+            if self.locator._symmetric:
+                return lev
+        except AttributeError:
+            pass
+
+        # Trim excess levels the locator may have supplied.
+        under = np.nonzero(lev < self.zmin)[0]
+        i0 = under[-1] if len(under) else 0
+        over = np.nonzero(lev > self.zmax)[0]
+        i1 = over[0] + 1 if len(over) else len(lev)
+        if self.extend in ('min', 'both'):
+            i0 += 1
+        if self.extend in ('max', 'both'):
+            i1 -= 1
+
+        if i1 - i0 < 3:
+            i0, i1 = 0, len(lev)
+
+        return lev[i0:i1]
 
     def _contour_level_args(self, z, args):
         """
@@ -1206,26 +1225,20 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self._auto = False
         if self.levels is None:
             if len(args) == 0:
-                lev = self._autolev(7)
+                levels_arg = 7  # Default, hard-wired.
             else:
-                level_arg = args[0]
-                try:
-                    if type(level_arg) == int:
-                        lev = self._autolev(level_arg)
-                    else:
-                        lev = np.asarray(level_arg).astype(np.float64)
-                except:
-                    raise TypeError(
-                        "Last {0} arg must give levels; see help({0})"
-                        .format(fn))
-            self.levels = lev
+                levels_arg = args[0]
         else:
-            self.levels = np.asarray(self.levels).astype(np.float64)
+            levels_arg = self.levels
+        if isinstance(levels_arg, Integral):
+            self.levels = self._autolev(levels_arg)
+        else:
+            self.levels = np.asarray(levels_arg).astype(np.float64)
 
         if not self.filled:
             inside = (self.levels > self.zmin) & (self.levels < self.zmax)
-            self.levels = self.levels[inside]
-            if len(self.levels) == 0:
+            levels_in = self.levels[inside]
+            if len(levels_in) == 0:
                 self.levels = [self.zmin]
                 warnings.warn("No contour levels were found"
                               " within the data range.")
@@ -1250,24 +1263,28 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # (Colorbar needs this even for line contours.)
         self._levels = list(self.levels)
 
+        if self.logscale:
+            lower, upper = 1e-250, 1e250
+        else:
+            lower, upper = -1e250, 1e250
+
         if self.extend in ('both', 'min'):
-            self._levels.insert(0, min(self.levels[0], self.zmin) - 1)
+            self._levels.insert(0, lower)
         if self.extend in ('both', 'max'):
-            self._levels.append(max(self.levels[-1], self.zmax) + 1)
+            self._levels.append(upper)
         self._levels = np.asarray(self._levels)
 
         if not self.filled:
             self.layers = self.levels
             return
 
-        # layer values are mid-way between levels
-        self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
-        # ...except that extended layers must be outside the
-        # normed range:
-        if self.extend in ('both', 'min'):
-            self.layers[0] = -1e150
-        if self.extend in ('both', 'max'):
-            self.layers[-1] = 1e150
+        # Layer values are mid-way between levels in screen space.
+        if self.logscale:
+            # Avoid overflow by taking sqrt before multiplying.
+            self.layers = (np.sqrt(self._levels[:-1])
+                           * np.sqrt(self._levels[1:]))
+        else:
+            self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
 
     def _process_colors(self):
         """
@@ -1304,7 +1321,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 if self.extend in ('both', 'max'):
                     i1 += 1
             self.cvalues = list(range(i0, i1))
-            self.set_norm(colors.NoNorm())
+            self.set_norm(mcolors.NoNorm())
         else:
             self.cvalues = self.layers
         self.set_array(self.levels)
@@ -1344,7 +1361,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     if lev < eps:
                         tlinestyles[i] = neg_ls
         else:
-            if isinstance(linestyles, six.string_types):
+            if isinstance(linestyles, str):
                 tlinestyles = [linestyles] * Nlev
             elif cbook.iterable(linestyles):
                 tlinestyles = list(linestyles)
@@ -1400,7 +1417,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # Nonetheless, improvements could probably be made.
 
         if indices is None:
-            indices = list(xrange(len(self.levels)))
+            indices = list(range(len(self.levels)))
 
         dmin = np.inf
         conmin = None
@@ -1681,7 +1698,7 @@ class QuadContourSet(ContourSet):
 
         Returns
         -------
-        :class:`~matplotlib.contour.QuadContourSet`
+        c : `~.contour.QuadContourSet`
 
         Other Parameters
         ----------------

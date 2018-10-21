@@ -1,12 +1,9 @@
 """
 A collection of functions and objects for creating or placing inset axes.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import warnings
 from matplotlib import docstring
-import six
 from matplotlib.offsetbox import AnchoredOffsetbox
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path
@@ -64,7 +61,7 @@ class InsetPosition(object):
 class AnchoredLocatorBase(AnchoredOffsetbox):
     def __init__(self, bbox_to_anchor, offsetbox, loc,
                  borderpad=0.5, bbox_transform=None):
-        super(AnchoredLocatorBase, self).__init__(
+        super().__init__(
             loc, pad=0., child=None, borderpad=borderpad,
             bbox_to_anchor=bbox_to_anchor, bbox_transform=bbox_transform
         )
@@ -91,8 +88,7 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
 class AnchoredSizeLocator(AnchoredLocatorBase):
     def __init__(self, bbox_to_anchor, x_size, y_size, loc,
                  borderpad=0.5, bbox_transform=None):
-
-        super(AnchoredSizeLocator, self).__init__(
+        super().__init__(
             bbox_to_anchor, None, loc,
             borderpad=borderpad, bbox_transform=bbox_transform
         )
@@ -129,7 +125,7 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
         if bbox_to_anchor is None:
             bbox_to_anchor = parent_axes.bbox
 
-        super(AnchoredZoomLocator, self).__init__(
+        super().__init__(
             bbox_to_anchor, None, loc, borderpad=borderpad,
             bbox_transform=bbox_transform)
 
@@ -255,7 +251,7 @@ class BboxConnector(Patch):
             corner of *bbox2*.
         """
         if isinstance(bbox1, Rectangle):
-            transform = bbox1.get_transfrom()
+            transform = bbox1.get_transform()
             bbox1 = Bbox.from_bounds(0, 0, 1, 1)
             bbox1 = TransformedBbox(bbox1, transform)
 
@@ -310,7 +306,11 @@ class BboxConnector(Patch):
             raise ValueError("transform should not be set")
 
         kwargs["transform"] = IdentityTransform()
-        Patch.__init__(self, fill=False, **kwargs)
+        if 'fill' in kwargs:
+            Patch.__init__(self, **kwargs)
+        else:
+            fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
+            Patch.__init__(self, fill=fill, **kwargs)
         self.bbox1 = bbox1
         self.bbox2 = bbox2
         self.loc1 = loc1
@@ -371,9 +371,7 @@ class BboxConnectorPatch(BboxConnector):
         path1 = self.connect_bbox(self.bbox1, self.bbox2, self.loc1, self.loc2)
         path2 = self.connect_bbox(self.bbox2, self.bbox1,
                                   self.loc2b, self.loc1b)
-        path_merged = (list(path1.vertices) +
-                       list(path2.vertices) +
-                       [path1.vertices[0]])
+        path_merged = [*path1.vertices, *path2.vertices, path1.vertices[0]]
         return Path(path_merged)
 
     get_path.__doc__ = BboxConnector.get_path.__doc__
@@ -386,7 +384,7 @@ def _add_inset_axes(parent_axes, inset_axes):
 
 
 @docstring.dedent_interpd
-def inset_axes(parent_axes, width, height, loc=1,
+def inset_axes(parent_axes, width, height, loc='upper right',
                bbox_to_anchor=None, bbox_transform=None,
                axes_class=None,
                axes_kwargs=None,
@@ -404,6 +402,25 @@ def inset_axes(parent_axes, width, height, loc=1,
     of `.inset_axes` may become slightly tricky when exceeding such standard
     cases, it is recommended to read
     :ref:`the examples <sphx_glr_gallery_axes_grid1_inset_locator_demo.py>`.
+
+    Notes
+    -----
+    The meaning of *bbox_to_anchor* and *bbox_to_transform* is interpreted
+    differently from that of legend. The value of bbox_to_anchor
+    (or the return value of its get_points method; the default is
+    *parent_axes.bbox*) is transformed by the bbox_transform (the default
+    is Identity transform) and then interpreted as points in the pixel
+    coordinate (which is dpi dependent).
+
+    Thus, following three calls are identical and creates an inset axes
+    with respect to the *parent_axes*::
+
+       axins = inset_axes(parent_axes, "30%%", "40%%")
+       axins = inset_axes(parent_axes, "30%%", "40%%",
+                          bbox_to_anchor=parent_axes.bbox)
+       axins = inset_axes(parent_axes, "30%%", "40%%",
+                          bbox_to_anchor=(0, 0, 1, 1),
+                          bbox_transform=parent_axes.transAxes)
 
     Parameters
     ----------
@@ -434,25 +451,26 @@ def inset_axes(parent_axes, width, height, loc=1,
 
     bbox_to_anchor : tuple or `matplotlib.transforms.BboxBase`, optional
         Bbox that the inset axes will be anchored to. If None,
-        *parent_axes.bbox* is used. If a tuple, can be either
+        a tuple of (0, 0, 1, 1) is used if *bbox_transform* is set
+        to *parent_axes.transAxes* or *parent_axes.figure.transFigure*.
+        Otherwise, *parent_axes.bbox* is used. If a tuple, can be either
         [left, bottom, width, height], or [left, bottom].
         If the kwargs *width* and/or *height* are specified in relative units,
-        the 2-tuple [left, bottom] cannot be used. Note that
-        the units of the bounding box are determined through the transform
-        in use. When using *bbox_to_anchor* it almost always makes sense to
-        also specify a *bbox_transform*. This might often be the axes transform
+        the 2-tuple [left, bottom] cannot be used. Note that,
+        unless *bbox_transform* is set, the units of the bounding box
+        are interpreted in the pixel coordinate. When using *bbox_to_anchor*
+        with tuple, it almost always makes sense to also specify
+        a *bbox_transform*. This might often be the axes transform
         *parent_axes.transAxes*.
 
     bbox_transform : `matplotlib.transforms.Transform`, optional
         Transformation for the bbox that contains the inset axes.
-        If None, a `.transforms.IdentityTransform` is used (i.e. pixel
-        coordinates). This is useful when not providing any argument to
-        *bbox_to_anchor*. When using *bbox_to_anchor* it almost always makes
-        sense to also specify a *bbox_transform*. This might often be the
-        axes transform *parent_axes.transAxes*. Inversely, when specifying
-        the axes- or figure-transform here, be aware that not specifying
-        *bbox_to_anchor* will use *parent_axes.bbox*, the units of which are
-        in display (pixel) coordinates.
+        If None, a `.transforms.IdentityTransform` is used. The value
+        of *bbox_to_anchor* (or the return value of its get_points method)
+        is transformed by the *bbox_transform* and then interpreted
+        as points in the pixel coordinate (which is dpi dependent).
+        You may provide *bbox_to_anchor* in some normalized coordinate,
+        and give an appropriate transform (e.g., *parent_axes.transAxes*).
 
     axes_class : `matplotlib.axes.Axes` type, optional
         If specified, the inset axes created will be created with this class's
@@ -515,7 +533,7 @@ def inset_axes(parent_axes, width, height, loc=1,
 
 
 @docstring.dedent_interpd
-def zoomed_inset_axes(parent_axes, zoom, loc=1,
+def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
                       bbox_to_anchor=None, bbox_transform=None,
                       axes_class=None,
                       axes_kwargs=None,
@@ -645,8 +663,11 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     """
     rect = TransformedBbox(inset_axes.viewLim, parent_axes.transData)
 
-    fill = kwargs.pop("fill", False)
-    pp = BboxPatch(rect, fill=fill, **kwargs)
+    if 'fill' in kwargs:
+        pp = BboxPatch(rect, **kwargs)
+    else:
+        fill = ('fc' in kwargs) or ('facecolor' in kwargs) or ('color' in kwargs)
+        pp = BboxPatch(rect, fill=fill, **kwargs)
     parent_axes.add_patch(pp)
 
     p1 = BboxConnector(inset_axes.bbox, rect, loc1=loc1, **kwargs)
