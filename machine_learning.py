@@ -12,24 +12,36 @@ from sklearn.neural_network import MLPRegressor
 from data_dependency import data_corelation_spring_layout
 
 
+def baseline_model():
+    model = Sequential()
+    model.add(Dense(5, input_dim=5, kernel_initializer='normal', activation='relu'))
+    model.add(Dense(5, kernel_initializer='normal'))
+    model.add(Dense(units=1,kernel_initializer='normal',activation='softmax'))
+    # Compile model
+    model.compile(loss='binary_crossentropy', optimizer='adam',metrics=['accuracy'])
+    return model
+
+
 def linear_regression_using_data_depency_graph(file):
-    G = data_corelation_spring_layout(file)
-    nodes = list(G.nodes)
-    node = []
-    in_node =[]
-    nodes_relation = pd.DataFrame()
-    df_list = []
+    G,df = data_corelation_spring_layout(file)
+    col_names = list(df['var1'].unique())
+    data_df = pd.read_csv(file)
+    for col_nm in col_names:
+        temp_df = pd.DataFrame(df.loc[df['var1'] == col_nm])
+        xval = temp_df['var2']
+        #yval = temp_df['node'].values
+        x = data_df[xval]
+        y = data_df[col_nm]
+        print(x.shape,y.shape)
+        seed = 42
+        numpy.random.seed(seed)
+        # evaluate model with standardized dataset
+        estimator = KerasRegressor(build_fn=baseline_model, epochs=100, batch_size=10, verbose=0)
+        kfold = KFold(n_splits=10, random_state=seed)
+        results = cross_val_score(estimator, x, y, cv=kfold)
+        print("Results: %.2f (%.2f) MSE  %.2f accuracy" % (results.mean(), results.std(),results))
+        estimator.save('D:\Thesis\model\model'+col_nm+'.h5')
 
-    for nd in nodes:
-
-        for u, v in G.in_edges(nd, data=False):
-           node.append(v)
-           in_node.append(u)
-        df = pd.DataFrame({'node':pd.Series(v), 'in_nodes':pd.Series(u)})
-        df_list.append(df)
-
-    final_df = pd.concat(df_list)
-    print(final_df)
 
 def linear_regression_using_data(file):
     df = pd.read_csv(file)
@@ -54,26 +66,19 @@ def linear_regression_using_data(file):
         print('Variance score for '+col_name+': %.2f' % r2_score(y_test, y_pred))
 
 
-def baseline_model():
-    model = Sequential()
-    model.add(Dense(25, input_dim=39, kernel_initializer='normal', activation='relu'))
-    model.add(Dense(25, kernel_initializer='normal'))
-    model.add(Dense(units=1,kernel_initializer='normal',activation='softmax'))
-    # Compile model
-    model.compile(loss='binary_crossentropy', optimizer='adam',metrics=['accuracy'])
-    return model
+
 
 
 
 def linear_regression_using_keras(file):
-        df = pd.read_csv(file)
-        column_name = list(df)
-        model_list = []
-        #for col_name in column_name:
+    df = pd.read_csv(file)
+    column_name = list(df)
+    model_list = []
+    for col_name in column_name:
         # x = df.loc[:, 0:50].values
         # y = df.loc[:, 50].values
-        x = df.loc[:, df.columns != 'p1']
-        y = df['p1']
+        x = df.loc[:, df.columns != col_name]
+        y = df[col_name]
         print(x.shape)
         print(y.shape)
 
@@ -93,4 +98,4 @@ def linear_regression_using_keras(file):
 
 
 
-linear_regression_using_keras("D:\Thesis\Sensitivity analysis final.csv")
+linear_regression_using_data_depency_graph("D:\Thesis\Sampled Realtime Data from PF.csv")

@@ -73,7 +73,7 @@ def data_corelation_spring_layout(file):
     nx.draw(g, pos=pos)
     nx.draw_networkx_labels(g, pos=pos,arrows=True)
     plt.show()
-    return g
+    return g,df
 
 
 def data_dependency_kamada_kawai_layout(file,value):
