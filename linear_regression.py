@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy
 import pandas as pd
 from keras.layers import Dense
@@ -8,12 +7,13 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
 
 from data_dependency import data_corelation_spring_layout
 
 
-def linear_regression(x,y):
+def linear_regression(x,y,col_name):
     x_train, x_test = train_test_split(x, test_size=0.2,random_state=0)
     y_train, y_test = train_test_split(y, test_size=0.2,random_state=0)
 
@@ -23,14 +23,14 @@ def linear_regression(x,y):
 
     model = LinearRegression().fit(x_train,y_train)
     #print(model.)
-    print(model.score(x_train,y_train))
+    print("modelScore of " + col_name + "is: %.2f" % model.score(x_train, y_train))
     y_pred = model.predict(x_test)
     # y_train.values.reshape(-1,1)
     # plt.scatter(x_train,y_train)
     # plt.plot(x_train,y_pred)
     # #x = linespace(10, 40, 5)
     # #plt.plot(x,x,'-')
-    plt.show()
+    #plt.show()
 
 def baseline_model():
     model = Sequential()
@@ -40,6 +40,20 @@ def baseline_model():
     # Compile model
     model.compile(loss='binary_crossentropy', optimizer='adam',metrics=['accuracy'])
     return model
+
+
+def sklearn_MLPregressor(x,y,col_name):
+    x_train, x_test = train_test_split(x, test_size=0.2, random_state=0)
+    y_train, y_test = train_test_split(y, test_size=0.2, random_state=0)
+
+    scalaer = StandardScaler().fit(x_train)
+    x_train = scalaer.transform(x_train)
+    x_test = scalaer.transform(x_test)
+    model = MLPRegressor(hidden_layer_sizes=(5,), activation='relu', solver='adam')
+    model.fit(x_train,y_train)
+    print("modelScore of "+col_name+"is: %.2f"% model.score(x_train,y_train))
+
+    y_pred = model.predict(x_test)
 
 
 def linear_regression_using_data_depency_graph(file):
@@ -55,7 +69,8 @@ def linear_regression_using_data_depency_graph(file):
         y = normalized_df[col_nm]
         #sc = StandardScaler()
         #x = sc.fit_transform(x_train)
-        linear_regression(x,y)
+        #linear_regression(x,y,col_nm)
+        sklearn_MLPregressor(x, y, col_nm)
 
         # seed = 42
         # numpy.random.seed(seed)
@@ -82,26 +97,9 @@ def linear_regression_using_data(file):
         # sc = StandardScaler()
         # x_scaler = sc.fit_transform(x)
         y = df[col_name]
-        linear_regression(x,y)
+        #linear_regression(x,y,col_name)
+        sklearn_MLPregressor(x,y,col_name)
 
-        # x_train, x_test = train_test_split(x_scaler, test_size=0.2)
-        # y_train, y_test = train_test_split(df[col_name], test_size=0.2)
-        #
-        # # sc = StandardScaler()
-        # # x_train = sc.fit_transform(x_train)
-        # # y_train = sc.transform(y_train)
-        # model  = MLPRegressor(hidden_layer_sizes=(25,),  activation='tanh', solver='adam')
-        #
-        # model.fit(x_train,y_train)
-        # print(model.score(x_train,y_train))
-        #
-        # y_pred = model.predict(x_test)
-        # print(y_pred)
-        # #print('Coefficients for '+col_name +'\n', model.coef_)
-        # # The mean squared error
-        # print("Mean squared error for "+col_name+": %.2f"% mean_squared_error(y_test, y_pred))
-        # # Explained variance score: 1 is perfect prediction
-        # print('Variance score for '+col_name+': %.2f' % r2_score(y_test, y_pred))
 
 
 
@@ -138,4 +136,4 @@ def linear_regression_using_keras(file):
 
 
 
-linear_regression_using_data("D:\Thesis\Sampled Realtime Data from PF.csv")
+linear_regression_using_data_depency_graph("D:\Thesis\Sampled Realtime Data from PF.csv")
