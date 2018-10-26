@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy
 import pandas as pd
 from keras.layers import Dense
@@ -25,12 +26,15 @@ def linear_regression(x,y,col_name):
     #print(model.)
     print("modelScore of " + col_name + "is: %.2f" % model.score(x_train, y_train))
     y_pred = model.predict(x_test)
+    # y_train = numpy.reshape(y_train,(-1,1))
+    # y_pred = numpy.reshape(y_pred,(-1,1))
     # y_train.values.reshape(-1,1)
-    # plt.scatter(x_train,y_train)
-    # plt.plot(x_train,y_pred)
-    # #x = linespace(10, 40, 5)
-    # #plt.plot(x,x,'-')
-    #plt.show()
+    print(x_train.shape,y_train.shape)
+    plt.scatter(x_train,y_train)
+    plt.plot(x_train,y_pred)
+    x = numpy.linespace(10, 40, 5)
+    plt.plot(x,x,'-')
+    plt.show()
 
 def baseline_model():
     model = Sequential()
@@ -69,8 +73,8 @@ def linear_regression_using_data_depency_graph(file):
         y = normalized_df[col_nm]
         #sc = StandardScaler()
         #x = sc.fit_transform(x_train)
-        #linear_regression(x,y,col_nm)
-        sklearn_MLPregressor(x, y, col_nm)
+        linear_regression(x,y,col_nm)
+        #sklearn_MLPregressor(x, y, col_nm)
 
         # seed = 42
         # numpy.random.seed(seed)
