@@ -26,14 +26,13 @@ def linear_regression(x,y,col_name):
     #print(model.)
     print("modelScore of " + col_name + "is: %.2f" % model.score(x_train, y_train))
     y_pred = model.predict(x_test)
+    print(y_train.shape,y_pred.shape)
     # y_train = numpy.reshape(y_train,(-1,1))
     # y_pred = numpy.reshape(y_pred,(-1,1))
     # y_train.values.reshape(-1,1)
-    print(x_train.shape,y_train.shape)
+    # print(x_train.shape,y_train.shape)
     plt.scatter(x_train,y_train)
     plt.plot(x_train,y_pred)
-    x = numpy.linespace(10, 40, 5)
-    plt.plot(x,x,'-')
     plt.show()
 
 def baseline_model():
