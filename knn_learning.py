@@ -1,5 +1,7 @@
+import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
@@ -19,6 +21,9 @@ def sklearn_knn(x,y,col_name):
     model.fit(x_train.astype(int),y_train.astype(int))
     print("modelScore of " + col_name + "is:  %.2f" % model.score(x_train.astype(int), y_train.astype(int)))
     y_pred = model.predict(x_test.astype(int))
+    accuracy = accuracy_score(y_test.astype(int), y_pred.astype(int))
+    print("Accuracy of " + col_name + " is : %.2f%%" % (accuracy * 100.0))
+    return accuracy
 
 
 
@@ -34,6 +39,9 @@ def randomforest_classifer(x,y,col_name):
     model.fit(x_train.astype(int), y_train.astype(int))
     print("modelScore of " + col_name + " is:  %.2f" % model.score(x_train.astype(int), y_train.astype(int)))
     y_pred = model.predict(x_test.astype(int))
+    accuracy = accuracy_score(y_test.astype(int), y_pred.astype(int))
+    print("Accuracy of "+col_name+" is : %.2f%%" % (accuracy * 100.0))
+    return accuracy
 
 
 
@@ -41,6 +49,8 @@ def randomforest_classifer(x,y,col_name):
 
 def knn_monte_carlo_using_data(file):
     df = pd.read_csv(file)
+    accuracy_list = []
+
     column_name = list(df)
     model_list = []
     for col_name in column_name:
@@ -48,12 +58,27 @@ def knn_monte_carlo_using_data(file):
         # sc = StandardScaler()
         # x_scaler = sc.fit_transform(x)
         y = df[col_name]
-        #sklearn_knn(x, y, col_name)
-        randomforest_classifer(x, y, col_name)
+        accuracy = sklearn_knn(x, y, col_name)
+        accuracy_list.append(accuracy)
+        #accuracy = randomforest_classifer(x, y, col_name)
+        #accuracy_list.append(accuracy)
+    s = pd.Series(
+        accuracy_list,
+        index=column_name
+    )
+
+    my_colors = 'rgbkymc'  # red, green, blue, black, etc.
+
+    s.plot(
+        kind='bar',
+
+    )
+    plt.show()
 
 
 def knn_monte_carlo_using_data_depency_graph(file):
     G, df = data_corelation_spring_layout(file)
+    accuracy_list = []
     col_names = list(df['var1'].unique())
     data_df = pd.read_csv(file)
     normalized_df = (data_df - data_df.mean()) / data_df.std()
@@ -65,9 +90,27 @@ def knn_monte_carlo_using_data_depency_graph(file):
         y = normalized_df[col_nm]
         # sc = StandardScaler()
         # x = sc.fit_transform(x_train)
-        #sklearn_knn(x, y, col_nm)
-        randomforest_classifer(x,y,col_nm)
+        accuracy = sklearn_knn(x, y, col_nm)
+        accuracy_list.append(accuracy)
+        # accuracy = randomforest_classifer(x, y, col_name)
+        # accuracy_list.append(accuracy)
+    # width = 1
+    # indexes = np.arange(len(col_names))
+    # plt.bar(indexes, accuracy_list)
+    # plt.xticks(indexes + width * 0.5, col_names)
+    s = pd.Series(
+        accuracy_list,
+        index=col_names
+    )
 
-#knn_monte_carlo_using_data('D:\Thesis\Sampled monte carlo Data from PF.csv')
-knn_monte_carlo_using_data_depency_graph('D:\Thesis\Sampled Realtime Data from PF.csv')
+
+
+    s.plot(
+        kind='bar',
+
+    )
+
+    plt.show()
+knn_monte_carlo_using_data_depency_graph('D:\Thesis\Sampled monte carlo Data from PF.csv')
+#knn_monte_carlo_using_data('D:\Thesis\Sampled Realtime Data from PF.csv')
 
