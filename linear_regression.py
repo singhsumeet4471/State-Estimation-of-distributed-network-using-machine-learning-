@@ -5,6 +5,7 @@ from keras.layers import Dense
 from keras.models import Sequential
 from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
@@ -12,6 +13,20 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
 
 from data_dependency import data_corelation_spring_layout
+
+
+def bar_graph(label_list,value_list):
+    s = pd.Series(
+        value_list,
+        index=label_list
+    )
+
+    s.plot(
+        kind='bar',
+
+    )
+
+    plt.show()
 
 
 def linear_regression(x,y,col_name):
@@ -26,14 +41,10 @@ def linear_regression(x,y,col_name):
     #print(model.)
     print("modelScore of " + col_name + "is: %.2f" % model.score(x_train, y_train))
     y_pred = model.predict(x_test)
-    print(y_train.shape,y_pred.shape)
-    # y_train = numpy.reshape(y_train,(-1,1))
-    # y_pred = numpy.reshape(y_pred,(-1,1))
-    # y_train.values.reshape(-1,1)
-    # print(x_train.shape,y_train.shape)
-    plt.scatter(x_train,y_train)
-    plt.plot(x_train,y_pred)
-    plt.show()
+    accuracy = accuracy_score(y_test.astype(int),y_pred.astype(int))
+    print("Accuracy of " + col_name + " is : %.2f%%" % (accuracy * 100.0))
+    return accuracy
+
 
 def baseline_model():
     model = Sequential()
@@ -56,11 +67,16 @@ def sklearn_MLPregressor(x,y,col_name):
     model.fit(x_train,y_train)
     print("modelScore of "+col_name+"is: %.2f"% model.score(x_train,y_train))
 
+
     y_pred = model.predict(x_test)
+    accuracy = accuracy_score(y_test.astype(int), y_pred.astype(int))
+    print("Accuracy of " + col_name + " is : %.2f%%" % (accuracy * 100.0))
+    return accuracy
 
 
 def linear_regression_using_data_depency_graph(file):
     G,df = data_corelation_spring_layout(file)
+    accuracy_list =[]
     col_names = list(df['var1'].unique())
     data_df = pd.read_csv(file)
     normalized_df = (data_df - data_df.mean()) / data_df.std()
@@ -72,7 +88,8 @@ def linear_regression_using_data_depency_graph(file):
         y = normalized_df[col_nm]
         #sc = StandardScaler()
         #x = sc.fit_transform(x_train)
-        linear_regression(x,y,col_nm)
+        acuuracy = linear_regression(x,y,col_nm)
+        accuracy_list.append(acuuracy)
         #sklearn_MLPregressor(x, y, col_nm)
 
         # seed = 42
@@ -89,21 +106,23 @@ def linear_regression_using_data_depency_graph(file):
         # # serialize weights to HDF5
         # estimator.save_weights("model.h5")
         # print("Saved model to disk")
+    bar_graph(col_names, accuracy_list)
 
 
 def linear_regression_using_data(file):
     df = pd.read_csv(file)
     column_name = list(df)
-    model_list = []
+    accuracy_list = []
     for col_name in column_name:
         x = df.loc[:, df.columns != col_name]
         # sc = StandardScaler()
         # x_scaler = sc.fit_transform(x)
         y = df[col_name]
-        #linear_regression(x,y,col_name)
-        sklearn_MLPregressor(x,y,col_name)
+        acuuracy = linear_regression(x, y, col_name)
+        accuracy_list.append(acuuracy)
+        #sklearn_MLPregressor(x,y,col_name)
 
-
+    bar_graph(column_name,accuracy_list)
 
 
 
