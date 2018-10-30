@@ -111,6 +111,6 @@ def knn_monte_carlo_using_data_depency_graph(file):
     )
 
     plt.show()
-knn_monte_carlo_using_data_depency_graph('D:\Thesis\Sampled monte carlo Data from PF.csv')
+knn_monte_carlo_using_data('D:\Thesis\Sampled monte carlo Data from PF.csv')
 #knn_monte_carlo_using_data('D:\Thesis\Sampled Realtime Data from PF.csv')
 

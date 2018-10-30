@@ -65,7 +65,7 @@ def sklearn_MLPregressor(x,y,col_name):
     x_test = scalaer.transform(x_test)
     model = MLPRegressor(hidden_layer_sizes=(5,), activation='relu', solver='adam')
     model.fit(x_train,y_train)
-    print("modelScore of "+col_name+"is: %.2f"% model.score(x_train,y_train))
+    print("modelScore of "+col_name+" is: %.2f"% model.score(x_train,y_train))
 
 
     y_pred = model.predict(x_test)
