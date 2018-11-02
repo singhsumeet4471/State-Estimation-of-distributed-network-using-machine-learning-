@@ -6,6 +6,7 @@ from keras.models import Sequential
 from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
@@ -43,7 +44,9 @@ def linear_regression(x,y,col_name):
     y_pred = model.predict(x_test)
     accuracy = accuracy_score(y_test.astype(int),y_pred.astype(int))
     print("Accuracy of " + col_name + " is : %.2f%%" % (accuracy * 100.0))
-    return accuracy
+    mean_abs_error = mean_absolute_error(y_test,y_pred)
+    print("Mean absolute error of " + col_name + " is : %.2f%%" % mean_abs_error)
+    return accuracy,mean_abs_error
 
 
 def baseline_model():
@@ -63,7 +66,7 @@ def sklearn_MLPregressor(x,y,col_name):
     scalaer = StandardScaler().fit(x_train)
     x_train = scalaer.transform(x_train)
     x_test = scalaer.transform(x_test)
-    model = MLPRegressor(hidden_layer_sizes=(5,), activation='relu', solver='adam')
+    model = MLPRegressor(hidden_layer_sizes=(25,), activation='relu', solver='adam')
     model.fit(x_train,y_train)
     print("modelScore of "+col_name+" is: %.2f"% model.score(x_train,y_train))
 
@@ -71,12 +74,15 @@ def sklearn_MLPregressor(x,y,col_name):
     y_pred = model.predict(x_test)
     accuracy = accuracy_score(y_test.astype(int), y_pred.astype(int))
     print("Accuracy of " + col_name + " is : %.2f%%" % (accuracy * 100.0))
-    return accuracy
+    mean_abs_error = mean_absolute_error(y_test, y_pred)
+    print("Mean absolute error of " + col_name + " is : %.2f%%" % mean_abs_error)
+    return accuracy,mean_abs_error
 
 
 def linear_regression_using_data_depency_graph(file):
     G,df = data_corelation_spring_layout(file)
     accuracy_list =[]
+    mean_abs_erro_list = []
     col_names = list(df['var1'].unique())
     data_df = pd.read_csv(file)
     normalized_df = (data_df - data_df.mean()) / data_df.std()
@@ -88,9 +94,12 @@ def linear_regression_using_data_depency_graph(file):
         y = normalized_df[col_nm]
         #sc = StandardScaler()
         #x = sc.fit_transform(x_train)
-        acuuracy = linear_regression(x,y,col_nm)
+        # acuuracy,mean_error = linear_regression(x,y,col_nm)
+        # accuracy_list.append(acuuracy)
+        # mean_abs_erro_list.append(mean_error)
+        acuuracy, mean_error = sklearn_MLPregressor(x, y, col_nm)
         accuracy_list.append(acuuracy)
-        #sklearn_MLPregressor(x, y, col_nm)
+        mean_abs_erro_list.append(mean_error)
 
         # seed = 42
         # numpy.random.seed(seed)
@@ -107,24 +116,32 @@ def linear_regression_using_data_depency_graph(file):
         # estimator.save_weights("model.h5")
         # print("Saved model to disk")
     bar_graph(col_names, accuracy_list)
+    df = pd.DataFrame({"model_name": pd.Series(col_names), "Accuracy Score": pd.Series(accuracy_list),
+                       "Mean Absolute Error": pd.Series(mean_abs_erro_list)})
+    df.to_csv("D:\Thesis\score_sheet\Score_sheet_using_data_depencency graph.csv")
 
 
 def linear_regression_using_data(file):
     df = pd.read_csv(file)
     column_name = list(df)
+    mean_abs_error_list = []
     accuracy_list = []
     for col_name in column_name:
         x = df.loc[:, df.columns != col_name]
         # sc = StandardScaler()
         # x_scaler = sc.fit_transform(x)
         y = df[col_name]
-        acuuracy = linear_regression(x, y, col_name)
+        # acuuracy,mean_error = linear_regression(x, y, col_name)
+        # accuracy_list.append(acuuracy)
+        # mean_abs_error_list.append(mean_error)
+        acuuracy, mean_error =sklearn_MLPregressor(x,y,col_name)
         accuracy_list.append(acuuracy)
-        #sklearn_MLPregressor(x,y,col_name)
+        mean_abs_error_list.append(mean_error)
 
     bar_graph(column_name,accuracy_list)
 
-
+    df = pd.DataFrame({"model_name":pd.Series(column_name),"Accuracy Score":pd.Series(accuracy_list),"Mean Absolute Error":pd.Series(mean_abs_error_list)})
+    df.to_csv("D:\Thesis\score_sheet\Score_sheet_using_data.csv")
 
 
 
@@ -158,4 +175,4 @@ def linear_regression_using_keras(file):
 
 
 
-linear_regression_using_data_depency_graph("D:\Thesis\Sampled Realtime Data from PF.csv")
+linear_regression_using_data("D:\Thesis\Sampled Realtime Data from PF.csv")
