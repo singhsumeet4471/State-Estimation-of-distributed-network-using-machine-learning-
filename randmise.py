@@ -96,8 +96,8 @@ def concat_df():
 
 
 
-def calculate_max_min_absolute_values():
-    df = pd.read_csv('D:\Thesis\Sensitivity analysis final.csv')
+def calculate_max_min_absolute_values(file):
+    df = pd.read_csv(file)
     pmax, pmin = 0, 100
     qmax, qmin = 0,100
     vmax, vmin = 0, 100
@@ -179,5 +179,5 @@ def get_top_abs_correlations(df):
 
     return final_df
 
-calculate_max_min_absolute_values()
+
 

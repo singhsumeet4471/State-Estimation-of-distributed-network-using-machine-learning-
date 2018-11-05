@@ -145,9 +145,9 @@ def data_corelation_network_grid_layout():
     nx.draw_networkx_labels(g, pos=pos, arrows=True)
     plt.show()
 
-def data_absolute_diff_network_grid_layout():
+def data_absolute_diff_network_grid_layout(file):
 
-     df = calculate_max_min_absolute_values()
+     df = calculate_max_min_absolute_values(file)
 
      #normalized_df[df_name] = (df[df_name] - df[df_name].min()) / (df[df_name].max() - df[df_name].min())
 
@@ -177,6 +177,7 @@ def data_absolute_diff_network_grid_layout():
      nx.draw(g, pos=pos)
      nx.draw_networkx_labels(g, pos=pos, arrows=True)
      plt.show()
+     return g,final_val
 
 
 
