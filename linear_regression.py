@@ -7,6 +7,7 @@ from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
@@ -42,11 +43,15 @@ def linear_regression(x,y,col_name):
     #print(model.)
     print("modelScore of " + col_name + "is: %.2f" % model.score(x_train, y_train))
     y_pred = model.predict(x_test)
-    accuracy = accuracy_score(y_test.astype(int),y_pred.astype(int))
+    accuracy = accuracy_score(y_test,y_pred)
     print("Accuracy of " + col_name + " is : %.2f%%" % (accuracy * 100.0))
     mean_abs_error = mean_absolute_error(y_test,y_pred)
     print("Mean absolute error of " + col_name + " is : %.2f%%" % mean_abs_error)
-    return accuracy,mean_abs_error
+    precion= precision_score(y_test.astype(int),y_pred.astype(int))
+    recall = recall_score(y_test.astype(int),y_pred.astype(int))
+    f1score = f1_score(y_test.astype(int),y_pred.astype(int))
+    print("Mean precison , recall and F1 score of " + col_name + " is : %.2f%%" % precion,recall,f1score)
+    return accuracy,mean_abs_error,precion,recall,f1score
 
 
 def baseline_model():
@@ -76,13 +81,20 @@ def sklearn_MLPregressor(x,y,col_name):
     print("Accuracy of " + col_name + " is : %.2f%%" % (accuracy * 100.0))
     mean_abs_error = mean_absolute_error(y_test, y_pred)
     print("Mean absolute error of " + col_name + " is : %.2f%%" % mean_abs_error)
-    return accuracy,mean_abs_error
+    precion = precision_score(y_test.astype(int), y_pred.astype(int),average='micro')
+    recall = recall_score(y_test.astype(int), y_pred.astype(int),average='micro')
+    f1score = f1_score(y_test.astype(int), y_pred.astype(int),average='micro')
+    print("Mean precison , recall and F1 score of " + col_name + " is : %.2f%%" % precion, recall, f1score)
+    return accuracy,mean_abs_error,precion, recall, f1score
 
 
 def linear_regression_using_data_depency_graph(file):
     G,df = data_corelation_spring_layout(file)
     accuracy_list =[]
     mean_abs_erro_list = []
+    precison_list =[]
+    recall_list =[]
+    f1score_list =[]
     col_names = list(df['var1'].unique())
     data_df = pd.read_csv(file)
     normalized_df = (data_df - data_df.mean()) / data_df.std()
@@ -97,9 +109,12 @@ def linear_regression_using_data_depency_graph(file):
         # acuuracy,mean_error = linear_regression(x,y,col_nm)
         # accuracy_list.append(acuuracy)
         # mean_abs_erro_list.append(mean_error)
-        acuuracy, mean_error = sklearn_MLPregressor(x, y, col_nm)
+        acuuracy, mean_error,precion, recall, f1score = sklearn_MLPregressor(x, y, col_nm)
         accuracy_list.append(acuuracy)
         mean_abs_erro_list.append(mean_error)
+        precison_list.append(precion)
+        recall_list.append(recall)
+        f1score_list.append(f1score)
 
         # seed = 42
         # numpy.random.seed(seed)
@@ -117,7 +132,8 @@ def linear_regression_using_data_depency_graph(file):
         # print("Saved model to disk")
     bar_graph(col_names, accuracy_list)
     df = pd.DataFrame({"model_name": pd.Series(col_names), "Accuracy Score": pd.Series(accuracy_list),
-                       "Mean Absolute Error": pd.Series(mean_abs_erro_list)})
+                       "Mean Absolute Error": pd.Series(mean_abs_erro_list),"precision":pd.Series(precison_list),"Recall":pd.Series(recall_list),
+                       "F1Score":pd.Series(f1score_list)})
     df.to_csv("D:\Thesis\score_sheet\Score_sheet_using_data_depencency graph.csv")
 
 
@@ -126,6 +142,9 @@ def linear_regression_using_data(file):
     column_name = list(df)
     mean_abs_error_list = []
     accuracy_list = []
+    precison_list = []
+    recall_list = []
+    f1score_list = []
     for col_name in column_name:
         x = df.loc[:, df.columns != col_name]
         # sc = StandardScaler()
@@ -134,13 +153,18 @@ def linear_regression_using_data(file):
         # acuuracy,mean_error = linear_regression(x, y, col_name)
         # accuracy_list.append(acuuracy)
         # mean_abs_error_list.append(mean_error)
-        acuuracy, mean_error =sklearn_MLPregressor(x,y,col_name)
+        acuuracy, mean_error,precion, recall, f1score  =sklearn_MLPregressor(x,y,col_name)
         accuracy_list.append(acuuracy)
         mean_abs_error_list.append(mean_error)
+        precison_list.append(precion)
+        recall_list.append(recall)
+        f1score_list.append(f1score)
 
     bar_graph(column_name,accuracy_list)
 
-    df = pd.DataFrame({"model_name":pd.Series(column_name),"Accuracy Score":pd.Series(accuracy_list),"Mean Absolute Error":pd.Series(mean_abs_error_list)})
+    df = pd.DataFrame({"model_name":pd.Series(column_name),"Accuracy Score":pd.Series(accuracy_list),
+                       "Mean Absolute Error":pd.Series(mean_abs_error_list),"precision":pd.Series(precison_list),"Recall":pd.Series(recall_list),
+                       "F1Score":pd.Series(f1score_list)})
     df.to_csv("D:\Thesis\score_sheet\Score_sheet_using_data.csv")
 
 

@@ -1,6 +1,11 @@
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from keras.layers import Dense
+from keras.models import Sequential
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 from data_dependency import data_absolute_diff_network_grid_layout
 
@@ -9,17 +14,27 @@ def baseline_model(x,y):
     x_train, x_test = train_test_split(x, test_size=0.2, random_state=0)
     y_train, y_test = train_test_split(y, test_size=0.2, random_state=0)
 
-    scalaer = StandardScaler().fit(x_train)
-    x_train = scalaer.transform(x_train)
-    x_test = scalaer.transform(x_test)
+    # scalaer = StandardScaler().fit(x_train)
+    # x_train = scalaer.transform(x_train)
+    # x_test = scalaer.transform(x_test)
 
     model = Sequential()
-    model.add(Dense(5, input_dim=5, kernel_initializer='normal', activation='relu'))
-    model.add(Dense(5, kernel_initializer='normal'))
-    model.add(Dense(units=1,kernel_initializer='normal',activation='sigmoid'))
-    # Compile model
-    model.compile(loss='binary_crossentropy', optimizer='adam',metrics=['accuracy'])
-    model.fit(x_train,y_train,batch_size=128,epochs=40)
+    model.add(Dense(20, input_dim=39, kernel_initializer='normal', activation='relu'))
+    model.add(Dense(20, activation='relu'))
+    model.add(Dense(1, activation='linear'))
+    model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['acc'])
+    model.summary()
+    history = model.fit(x_train, y_train, epochs=100, batch_size=64, verbose=1, validation_split=0.2)
+    print(history.history.keys())
+    # "Loss"
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'validation'], loc='upper left')
+    plt.show()
+
     return model
 
 
@@ -41,10 +56,15 @@ def keras_nn_using_data(file):
     mean_abs_error_list = []
     accuracy_list = []
     for col_name in column_name:
-        x = df.loc[:, df.columns != col_name]
-
-        y = df[col_name]
-        model = baseline_model(x,y)
+        x = df.loc[:, df.columns != col_name].values
+        y = df[col_name].values
+        y = np.reshape(y, (-1, 1))
+        scaler = MinMaxScaler()
+        print(scaler.fit(x))
+        print(scaler.fit(y))
+        xscale = scaler.transform(x)
+        yscale = scaler.transform(y)
+        baseline_model(xscale,yscale)
 
 
 
@@ -77,4 +97,4 @@ def keras_nn_using_data_depency_graph(file):
 
 
 
-keras_nn_using_data_depency_graph("D:\Thesis\Sensitivity analysis final.csv")
+keras_nn_using_data("D:\Thesis\Sensitivity analysis final.csv")

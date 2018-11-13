@@ -60,7 +60,7 @@ def sample_moduledata():
     q1 = []
 
 
-    for i in range(3000):
+    for i in range(10000):
 
         for load in loads:
             p = random.choice(plist)
@@ -404,7 +404,7 @@ def sample_sensitive_analysis_constant():
     final_df = pandas.concat(dflist, axis=1)
     final_df.to_csv('D:\Thesis\ Q10 Sampled sensitivity analysis_constant from PF.csv')
 
-sample_sensitive_analysis_constant()
+sample_moduledata()
 
 # Loads = []
 #
