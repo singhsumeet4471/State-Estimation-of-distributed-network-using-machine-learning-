@@ -39,17 +39,17 @@ def linear_regression(x,y,col_name):
     x_train = scalaer.transform(x_train)
     x_test = scalaer.transform(x_test)
 
-    model = LinearRegression().fit(x_train,y_train)
+    model = LinearRegression(normalize=False)
+    model.fit(x_train,y_train)
     #print(model.)
-    print("modelScore of " + col_name + "is: %.2f" % model.score(x_train, y_train))
     y_pred = model.predict(x_test)
-    accuracy = accuracy_score(y_test,y_pred)
+    accuracy = accuracy_score(y_test.astype(int),y_pred.astype(int))
     print("Accuracy of " + col_name + " is : %.2f%%" % (accuracy * 100.0))
     mean_abs_error = mean_absolute_error(y_test,y_pred)
     print("Mean absolute error of " + col_name + " is : %.2f%%" % mean_abs_error)
-    precion= precision_score(y_test.astype(int),y_pred.astype(int))
-    recall = recall_score(y_test.astype(int),y_pred.astype(int))
-    f1score = f1_score(y_test.astype(int),y_pred.astype(int))
+    precion= precision_score(y_test.astype(int),y_pred.astype(int),average='micro')
+    recall = recall_score(y_test.astype(int),y_pred.astype(int),average='micro')
+    f1score = f1_score(y_test.astype(int),y_pred.astype(int),average='micro')
     print("Mean precison , recall and F1 score of " + col_name + " is : %.2f%%" % precion,recall,f1score)
     return accuracy,mean_abs_error,precion,recall,f1score
 
@@ -106,7 +106,7 @@ def linear_regression_using_data_depency_graph(file):
         y = normalized_df[col_nm]
         #sc = StandardScaler()
         #x = sc.fit_transform(x_train)
-        # acuuracy,mean_error = linear_regression(x,y,col_nm)
+        #acuuracy, mean_error, precion, recall, f1score = linear_regression(x,y,col_nm)
         # accuracy_list.append(acuuracy)
         # mean_abs_erro_list.append(mean_error)
         acuuracy, mean_error,precion, recall, f1score = sklearn_MLPregressor(x, y, col_nm)
@@ -150,9 +150,7 @@ def linear_regression_using_data(file):
         # sc = StandardScaler()
         # x_scaler = sc.fit_transform(x)
         y = df[col_name]
-        # acuuracy,mean_error = linear_regression(x, y, col_name)
-        # accuracy_list.append(acuuracy)
-        # mean_abs_error_list.append(mean_error)
+        #acuuracy, mean_error, precion, recall, f1score = linear_regression(x, y, col_name)
         acuuracy, mean_error,precion, recall, f1score  =sklearn_MLPregressor(x,y,col_name)
         accuracy_list.append(acuuracy)
         mean_abs_error_list.append(mean_error)
@@ -199,4 +197,4 @@ def linear_regression_using_keras(file):
 
 
 
-linear_regression_using_data("D:\Thesis\Sampled Realtime Data from PF.csv")
+linear_regression_using_data("D:\Thesis\Training Data\Sampled Realtime Data from PF.csv")
