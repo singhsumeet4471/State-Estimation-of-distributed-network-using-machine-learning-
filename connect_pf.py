@@ -60,7 +60,7 @@ def sample_moduledata():
     q1 = []
 
 
-    for i in range(10000):
+    for i in range(25000):
 
         for load in loads:
             p = random.choice(plist)

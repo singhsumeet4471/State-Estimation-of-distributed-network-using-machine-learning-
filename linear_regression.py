@@ -106,10 +106,10 @@ def linear_regression_using_data_depency_graph(file):
         y = normalized_df[col_nm]
         #sc = StandardScaler()
         #x = sc.fit_transform(x_train)
-        #acuuracy, mean_error, precion, recall, f1score = linear_regression(x,y,col_nm)
+        acuuracy, mean_error, precion, recall, f1score = linear_regression(x,y,col_nm)
         # accuracy_list.append(acuuracy)
         # mean_abs_erro_list.append(mean_error)
-        acuuracy, mean_error,precion, recall, f1score = sklearn_MLPregressor(x, y, col_nm)
+        #acuuracy, mean_error,precion, recall, f1score = sklearn_MLPregressor(x, y, col_nm)
         accuracy_list.append(acuuracy)
         mean_abs_erro_list.append(mean_error)
         precison_list.append(precion)
@@ -197,4 +197,4 @@ def linear_regression_using_keras(file):
 
 
 
-linear_regression_using_data("D:\Thesis\Training Data\Sampled Realtime Data from PF.csv")
+linear_regression_using_data_depency_graph("D:\Thesis\Training Data\Sampled Realtime Data from PF.csv")

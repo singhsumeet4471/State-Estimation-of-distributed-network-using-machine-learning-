@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 
 
@@ -66,9 +68,6 @@ def add_csv():
 
 
 def concat_df():
-
-
-
 
     df1 = pd.read_csv('D:\Thesis\Sensitivity analysis\P1 Sampled sensitivity analysis_constant from PF.csv')
     df2 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q1 Sampled sensitivity analysis_constant from PF.csv')
@@ -166,10 +165,20 @@ def get_top_abs_correlations(df):
     df_list =[]
     au_corr = df.corr().abs().unstack().reset_index()
     au_corr.columns = ['var1', 'var2', 'value']
+    regexV = re.compile(r'^Volatge\d+$')
+    regexVa = re.compile(r'^Volatge angle\d+$')
     temp_df = pd.DataFrame()
     for names in column_name:
         temp_df = au_corr.loc[(au_corr['var1']== names) & (au_corr['var2']!= names)  ]
-        temp_df = temp_df.nlargest(5,'value')
+        #temp_df = temp_df.nlargest(6, 'value')
+        if regexV.match(names):
+            temp_df = temp_df[temp_df['var2'].str.contains('^Volatge\d+$')]
+            temp_df = temp_df.nlargest(6, 'value')
+        elif regexVa.match(names):
+            temp_df = temp_df[temp_df['var2'].str.contains('^Volatge\d+$')]
+            temp_df = temp_df.nlargest(6,'value')
+        else:
+            temp_df = temp_df.nlargest(6, 'value')
         df_list.append(temp_df)
     final_df = pd.concat(df_list)
     #labels_to_drop = get_redundant_pairs(df)
@@ -180,4 +189,16 @@ def get_top_abs_correlations(df):
     return final_df
 
 
+def normalizing_voltage(file):
+    df = pd.read_csv(file)
+    column_name = list(df)
+    regex = re.compile(r'^Volatge\d+$')
+    for col_nm in column_name:
+        if regex.match(col_nm):
+            df[col_nm] *= 1000
 
+
+    df.to_csv(file)
+
+
+normalizing_voltage('D:\Thesis\Training Data\Sampled monte carlo Data from PF.csv')
