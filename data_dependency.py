@@ -59,8 +59,8 @@ def get_top_abs_correlations(df):
     df_list =[]
     au_corr = df.corr().abs().unstack().reset_index()
     au_corr.columns = ['var1', 'var2', 'value']
-    regexV = re.compile(r'^Volatge\d+$')
-    regexVa = re.compile(r'^Volatge angle\d+$')
+    regexV = re.compile(r'^Voltage\d+$')
+    regexVa = re.compile(r'^Voltage angle\d+$')
     temp_df = pd.DataFrame()
     for names in column_name:
         temp_df = au_corr.loc[(au_corr['var1']== names) & (au_corr['var2']!= names)  ]
@@ -214,13 +214,8 @@ def data_absolute_diff_network_grid_layout(file):
 
 
 
-     #final_df.to_csv("D:\Thesis\Absolute_diff__min_max_sensitivity_analysis.csv")
 
-
-
-
-
-
+#final_df.to_csv("D:\Thesis\Absolute_diff__min_max_sensitivity_analysis.csv")
 #data_corelation_spring_layout("D:\Thesis\Sampled monte carlo Data from PF.csv",0.3)
 
 

@@ -103,8 +103,8 @@ def sample_moduledata():
 
     for pfinal, qfinal ,vfinal,vafinal,pffinal in zip(pcheck,qcheck,dfvolt,dfvolt_angle,dfpower_factor):
 
-        df = pandas.DataFrame( {'{}{}'.format("p", i): pandas.Series(pfinal), '{}{}'.format("q", i):pandas.Series(qfinal), '{}{}'.format("Volatge", i):pandas.Series(vfinal),
-                                '{}{}'.format("Volatage angle", i):pandas.Series(vafinal), '{}{}'.format("Powerfactor", i):pandas.Series(pffinal)})
+        df = pandas.DataFrame( {'{}{}'.format("p", i): pandas.Series(pfinal), '{}{}'.format("q", i):pandas.Series(qfinal), '{}{}'.format("Voltage", i):pandas.Series(vfinal),
+                                '{}{}'.format("Voltage angle", i):pandas.Series(vafinal), '{}{}'.format("Powerfactor", i):pandas.Series(pffinal)})
         i +=1
         dflist.append(df)
 
@@ -196,8 +196,8 @@ def sample_relatimedata():
 
     for pfinal, qfinal, vfinal, vafinal, pffinal in zip(pcheck, qcheck, dfvolt, dfvolt_angle, dfpower_factor):
         df = pandas.DataFrame({'{}{}'.format("p", i): pandas.Series(pfinal), '{}{}'.format("q", i): pandas.Series(qfinal),
-                 '{}{}'.format("Volatge", i): pandas.Series(vfinal),
-                 '{}{}'.format("Volatage angle", i): pandas.Series(vafinal),
+                 '{}{}'.format("Voltage", i): pandas.Series(vfinal),
+                 '{}{}'.format("Voltage angle", i): pandas.Series(vafinal),
                  '{}{}'.format("Powerfactor", i): pandas.Series(pffinal)})
         i += 1
         dflist.append(df)
@@ -282,7 +282,7 @@ def sample_sensitive_analysis():
         df = pandas.DataFrame(
             {'{}{}'.format("p", i): pandas.Series(pfinal), '{}{}'.format("q", i): pandas.Series(qfinal),
              '{}{}'.format("Volatge", i): pandas.Series(vfinal),
-             '{}{}'.format("Volatage angle", i): pandas.Series(vafinal),
+             '{}{}'.format("Volatge angle", i): pandas.Series(vafinal),
              '{}{}'.format("Powerfactor", i): pandas.Series(pffinal)})
         i += 1
         dflist.append(df)
