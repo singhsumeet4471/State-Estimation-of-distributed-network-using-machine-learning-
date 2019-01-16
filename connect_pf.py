@@ -37,8 +37,11 @@ LineObj = app.GetCalcRelevantObjects("*.ElmLne")
 loads = app.GetCalcRelevantObjects("*.ElmLod")
 terms = app.GetCalcRelevantObjects("*.ElmTerm")
 syms = app.GetCalcRelevantObjects("*.ElmSym")
+print(loads)
 
-
+for dislod in loads:
+    print(dislod.cDisplayName)
+    print(dislod.cDisplayName)
 
 
 
@@ -173,8 +176,8 @@ def sample_relatimedata():
             ptemp.append(pvar)
 
         q1.append(0.0)
-        q = [Lod.GetAttribute('m:Q:bus1') for Lod in loads]
-        for qvar, qtemp in zip(q, qvalue):
+        qval = [Lod.GetAttribute('m:Q:bus1') for Lod in loads]
+        for qvar, qtemp in zip(qval, qvalue):
             qtemp.append(qvar)
 
         Voltages = [Volt.GetAttribute('m:U') for Volt in terms]
@@ -370,8 +373,8 @@ def sample_sensitive_analysis_constant():
                 ptemp.append(pvar)
 
             q1.append(0.0)
-            q = [Lod.GetAttribute('m:Q:bus1') for Lod in loads]
-            for qvar, qtemp in zip(q, qvalue):
+            qval = [Lod.GetAttribute('m:Q:bus1') for Lod in loads]
+            for qvar, qtemp in zip(qval, qvalue):
                 qtemp.append(qvar)
 
             Voltages = [Volt.GetAttribute('m:U') for Volt in terms]
@@ -404,7 +407,7 @@ def sample_sensitive_analysis_constant():
     final_df = pandas.concat(dflist, axis=1)
     final_df.to_csv('D:\Thesis\ Q10 Sampled sensitivity analysis_constant from PF.csv')
 
-sample_moduledata()
+sample_relatimedata()
 
 # Loads = []
 #

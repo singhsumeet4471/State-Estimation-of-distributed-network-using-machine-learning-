@@ -17,7 +17,7 @@ from sklearn.preprocessing import StandardScaler
 from data_dependency import data_corelation_spring_layout
 
 
-def bar_graph(label_list,value_list):
+def bar_graph(label_list,value_list,i):
     s = pd.Series(
         value_list,
         index=label_list
@@ -28,7 +28,8 @@ def bar_graph(label_list,value_list):
 
     )
 
-    plt.show()
+    #plt.show()
+    plt.savefig('D:\Thesis\score_sheet\MSE_Bar_Param_'+str(i)+'.png')
 
 
 def linear_regression(x,y,col_name):
@@ -43,13 +44,13 @@ def linear_regression(x,y,col_name):
     model.fit(x_train,y_train)
     #print(model.)
     y_pred = model.predict(x_test)
-    accuracy = accuracy_score(y_test.astype(int),y_pred.astype(int))
+    accuracy = accuracy_score(y_test.astype(int),y_pred.astype(int))*100.0
     print("Accuracy of " + col_name + " is : %.2f%%" % (accuracy * 100.0))
-    mean_abs_error = mean_absolute_error(y_test,y_pred)
+    mean_abs_error = mean_absolute_error(y_test,y_pred)*100.0
     print("Mean absolute error of " + col_name + " is : %.2f%%" % mean_abs_error)
-    precion= precision_score(y_test.astype(int),y_pred.astype(int),average='micro')
-    recall = recall_score(y_test.astype(int),y_pred.astype(int),average='micro')
-    f1score = f1_score(y_test.astype(int),y_pred.astype(int),average='micro')
+    precion= precision_score(y_test.astype(int),y_pred.astype(int),average='micro')*100.0
+    recall = recall_score(y_test.astype(int),y_pred.astype(int),average='micro')*100.0
+    f1score = f1_score(y_test.astype(int),y_pred.astype(int),average='micro')*100.0
     print("Mean precison , recall and F1 score of " + col_name + " is : %.2f%%" % precion,recall,f1score)
     return accuracy,mean_abs_error,precion,recall,f1score
 
@@ -89,27 +90,34 @@ def sklearn_MLPregressor(x,y,col_name):
 
 
 def linear_regression_using_data_depency_graph(file):
-    G,df = data_corelation_spring_layout(file)
-    accuracy_list =[]
+    # accuracy_list = []
+    # mean_abs_erro_list = []
+    # precison_list = []
+    # recall_list = []
+    # f1score_list = []
+    # model_name_list =[]
+    #for i in  range(1,30):
+    G, df = data_corelation_spring_layout(file,20)
+    accuracy_list = []
     mean_abs_erro_list = []
-    precison_list =[]
-    recall_list =[]
-    f1score_list =[]
+    precison_list = []
+    recall_list = []
+    f1score_list = []
     col_names = list(df['var1'].unique())
     data_df = pd.read_csv(file)
     normalized_df = (data_df - data_df.mean()) / data_df.std()
     for col_nm in col_names:
         temp_df = pd.DataFrame(df.loc[df['var1'] == col_nm])
         xval = temp_df['var2']
-        #yval = temp_df['node'].values
+        # yval = temp_df['node'].values
         x = normalized_df[xval]
         y = normalized_df[col_nm]
-        #sc = StandardScaler()
-        #x = sc.fit_transform(x_train)
-        acuuracy, mean_error, precion, recall, f1score = linear_regression(x,y,col_nm)
+        # sc = StandardScaler()
+        # x = sc.fit_transform(x_train)
+        #acuuracy, mean_error, precion, recall, f1score = linear_regression(x, y, col_nm)
         # accuracy_list.append(acuuracy)
         # mean_abs_erro_list.append(mean_error)
-        #acuuracy, mean_error,precion, recall, f1score = sklearn_MLPregressor(x, y, col_nm)
+        acuuracy, mean_error,precion, recall, f1score = sklearn_MLPregressor(x, y, col_nm)
         accuracy_list.append(acuuracy)
         mean_abs_erro_list.append(mean_error)
         precison_list.append(precion)
@@ -130,11 +138,29 @@ def linear_regression_using_data_depency_graph(file):
         # # serialize weights to HDF5
         # estimator.save_weights("model.h5")
         # print("Saved model to disk")
-    bar_graph(col_names, accuracy_list)
+    #bar_graph(col_names, accuracy_list,20)
     df = pd.DataFrame({"model_name": pd.Series(col_names), "Accuracy Score": pd.Series(accuracy_list),
-                       "Mean Absolute Error": pd.Series(mean_abs_erro_list),"precision":pd.Series(precison_list),"Recall":pd.Series(recall_list),
-                       "F1Score":pd.Series(f1score_list)})
+                       "Mean Absolute Error": pd.Series(mean_abs_erro_list), "precision": pd.Series(precison_list),
+                       "Recall": pd.Series(recall_list),
+                       "F1Score": pd.Series(f1score_list)})
     df.to_csv("D:\Thesis\score_sheet\Score_sheet_using_data_depencency graph.csv")
+        # accuracy_list.append(accuracy_list_temp)
+        # mean_abs_erro_list.append(mean_abs_erro_list_temp)
+        # precison_list.append(precison_list_temp)
+        # recall_list.append(recall_list_temp)
+        # f1score_list.append(f1score_list_temp)
+    # diffrent_var_df = pd.DataFrame({"Model_Name":pd.Series(model_name_list)})
+    # i=1
+    # for acc,mae,pre,re,fscore in zip(accuracy_list,mean_abs_erro_list,precison_list,recall_list,f1score_list):
+    #     diffrent_var_df['{}{}'.format("Accuracy_", i)] = pd.Series(acc)
+    #     diffrent_var_df['{}{}'.format("Mean_Absolute_error_", i)] = pd.Series(mae)
+    #     diffrent_var_df['{}{}'.format("Precision_", i)] = pd.Series(pre)
+    #     diffrent_var_df['{}{}'.format("Recall_", i)] = pd.Series(re)
+    #     diffrent_var_df['{}{}'.format("F1_score_", i)] = pd.Series(fscore)
+    #     i +=1
+    #
+    # diffrent_var_df.to_csv("D:\Thesis\score_sheet\Different_Parameter Score_sheet_Monte_Carlo.csv")
+
 
 
 def linear_regression_using_data(file):
@@ -197,4 +223,4 @@ def linear_regression_using_keras(file):
 
 
 
-linear_regression_using_data_depency_graph("D:\Thesis\Training Data\Sampled Realtime Data from PF.csv")
+linear_regression_using_data_depency_graph("D:\Thesis\Dminik_data\data2\Sampled_Real_Data_CompleteData.csv")

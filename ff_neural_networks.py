@@ -5,7 +5,7 @@ import pandas as pd
 from keras.layers import Dense
 from keras.models import Sequential
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler
 
 from data_dependency import data_absolute_diff_network_grid_layout
 
@@ -19,12 +19,12 @@ def baseline_model(x,y):
     # x_test = scalaer.transform(x_test)
 
     model = Sequential()
-    model.add(Dense(20, input_dim=39, kernel_initializer='normal', activation='relu'))
+    model.add(Dense(20, input_dim=49, kernel_initializer='normal', activation='relu'))
     model.add(Dense(20, activation='relu'))
     model.add(Dense(1, activation='linear'))
     model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['acc'])
     model.summary()
-    history = model.fit(x_train, y_train, epochs=100, batch_size=64, verbose=1, validation_split=0.2)
+    history = model.fit(x_train, y_train, epochs=100, batch_size=100, verbose=1, validation_split=0.2)
     print(history.history.keys())
     # "Loss"
     plt.plot(history.history['loss'])
@@ -97,4 +97,4 @@ def keras_nn_using_data_depency_graph(file):
 
 
 
-keras_nn_using_data("D:\Thesis\Sensitivity analysis final.csv")
+keras_nn_using_data("D:\Thesis\Backup_Dataset\Sampled monte carlo Data from PF.csv")

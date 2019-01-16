@@ -1,11 +1,9 @@
-import re
-
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import pandas as pd
 
-from randmise import calculate_max_min_absolute_values
+from randmise import calculate_max_min_absolute_values, get_top_abs_correlations
 
 
 def load_csv():
@@ -54,40 +52,15 @@ def load_csv():
     return csv_list
 
 
-def get_top_abs_correlations(df):
-    column_name = list(df)
-    df_list =[]
-    au_corr = df.corr().abs().unstack().reset_index()
-    au_corr.columns = ['var1', 'var2', 'value']
-    regexV = re.compile(r'^Voltage\d+$')
-    regexVa = re.compile(r'^Voltage angle\d+$')
-    temp_df = pd.DataFrame()
-    for names in column_name:
-        temp_df = au_corr.loc[(au_corr['var1']== names) & (au_corr['var2']!= names)  ]
-        #temp_df = temp_df.nlargest(6, 'value')
-        if regexV.match(names):
-            temp_df = temp_df[temp_df['var2'].str.contains('^Volatge\d+$')]
-            temp_df = temp_df.nlargest(6, 'value')
-        elif regexVa.match(names):
-            temp_df = temp_df[temp_df['var2'].str.contains('^Volatge\d+$')]
-            temp_df = temp_df.nlargest(6,'value')
-        else:
-            temp_df = temp_df.nlargest(6, 'value')
-        df_list.append(temp_df)
-    final_df = pd.concat(df_list)
-    #labels_to_drop = get_redundant_pairs(df)
-    #au_corr = au_corr.drop(labels=labels_to_drop).sort_values(ascending=False)
-
-    print(final_df)
-
-    return final_df
 
 
-def data_corelation_spring_layout(file):
+
+def data_corelation_spring_layout(file,num):
 
     data = pd.read_csv(file)
 
-    df = get_top_abs_correlations(data)
+
+    df = get_top_abs_correlations(data,num,False)
 
     G=nx.from_pandas_edgelist(df, 'var1', 'var2')
 
@@ -98,15 +71,17 @@ def data_corelation_spring_layout(file):
             elif (G.has_edge('{}{}'.format("q", i), '{}{}'.format("q", j))):
                 G.remove_edge('{}{}'.format("q", i), '{}{}'.format("q", j))
     g = G.to_directed()
+    #min_nodes = approx.min_weighted_vertex_cover(g)
     #adjacency_matrix
     a = nx.adjacency_matrix(g)
     print(a)
+
     pos = nx.spring_layout(g, k=0.3*1/np.sqrt(len(G.nodes())), iterations=20)
     plt.figure(3, figsize=(40, 40))
     nx.draw(g, pos=pos)
     nx.draw_networkx_labels(g, pos=pos,arrows=True)
-    plt.show()
-    return g,df
+    #plt.show()
+    return G,df
 
 
 def data_dependency_kamada_kawai_layout(file,value):
@@ -217,8 +192,15 @@ def data_absolute_diff_network_grid_layout(file):
 
 #final_df.to_csv("D:\Thesis\Absolute_diff__min_max_sensitivity_analysis.csv")
 #data_corelation_spring_layout("D:\Thesis\Sampled monte carlo Data from PF.csv",0.3)
-
-
-
-
-
+# j =[]
+# nodes = []
+# node_cont =[]
+# for i in range(1,41):
+#    g,df,num_nodes = data_corelation_spring_layout('D:\Thesis\Dminik_data\data2\Sampled_Real_Data_CompleteData.csv',i)
+#    j.append(i)
+#    node_cont.append(len(num_nodes))
+#    nodes.append(num_nodes)
+#
+# df_min_nodes = pd.DataFrame({'Number_of_parameters':pd.Series(j),'Node Count':pd.Series(node_cont),'Minimum_nodes':pd.Series(nodes)})
+#
+# df_min_nodes.to_csv('D:\Thesis\Minimum_nodes_per_parameters.csv')

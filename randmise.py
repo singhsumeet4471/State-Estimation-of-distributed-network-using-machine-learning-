@@ -50,9 +50,12 @@ def add_csv():
     qf1 = pd.DataFrame(csv1)
     csv2 = pd.read_csv("D:\Thesis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\QL2.csv")
     qf2 = pd.DataFrame(csv2)
+    csv3 = pd.read_csv("D:\Thesis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\QL3.csv")
+    qf3 = pd.DataFrame(csv3)
 
     combined_qf = qf1 + qf2.values
-    combined_qf = combined_qf.apply(pd.to_numeric, errors='ignore')
+    combined_dfq = combined_pf + qf3.values
+    combined_df = combined_dfq.apply(pd.to_numeric, errors='ignore')
     combined_qf.to_csv("D:\Thesis\Sumeet\Sumeet\CSV_74_Loadprofiles_1min_W_var\Q_final.csv")
     print(combined_qf)
     plist = []
@@ -69,29 +72,29 @@ def add_csv():
 
 def concat_df():
 
-    df1 = pd.read_csv('D:\Thesis\Sensitivity analysis\P1 Sampled sensitivity analysis_constant from PF.csv')
-    df2 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q1 Sampled sensitivity analysis_constant from PF.csv')
-    df3 = pd.read_csv('D:\Thesis\Sensitivity analysis\P2 Sampled sensitivity analysis_constant from PF.csv')
-    df4 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q2 Sampled sensitivity analysis_constant from PF.csv')
-    df5 = pd.read_csv('D:\Thesis\Sensitivity analysis\P3 Sampled sensitivity analysis_constant from PF.csv')
-    df6 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q3 Sampled sensitivity analysis_constant from PF.csv')
-    df7 = pd.read_csv('D:\Thesis\Sensitivity analysis\P4 Sampled sensitivity analysis_constant from PF.csv')
-    df8 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q4 Sampled sensitivity analysis_constant from PF.csv')
-    df9 = pd.read_csv('D:\Thesis\Sensitivity analysis\P5 Sampled sensitivity analysis_constant from PF.csv')
-    df10 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q5 Sampled sensitivity analysis_constant from PF.csv')
-    df11 = pd.read_csv('D:\Thesis\Sensitivity analysis\P6 Sampled sensitivity analysis_constant from PF.csv')
-    df12 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q6 Sampled sensitivity analysis_constant from PF.csv')
-    df13 = pd.read_csv('D:\Thesis\Sensitivity analysis\P7 Sampled sensitivity analysis_constant from PF.csv')
-    df14 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q7 Sampled sensitivity analysis_constant from PF.csv')
-    df15 = pd.read_csv('D:\Thesis\Sensitivity analysis\P8 Sampled sensitivity analysis_constant from PF.csv')
-    df16 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q8 Sampled sensitivity analysis_constant from PF.csv')
-    df17 = pd.read_csv('D:\Thesis\Sensitivity analysis\P9 Sampled sensitivity analysis_constant from PF.csv')
-    df18 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q9 Sampled sensitivity analysis_constant from PF.csv')
-    df19 = pd.read_csv('D:\Thesis\Sensitivity analysis\P10 Sampled sensitivity analysis_constant from PF.csv')
-    df20 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q10 Sampled sensitivity analysis_constant from PF.csv')
+    df1 = pd.read_csv('D:\Thesis\Dminik_data\data2\Sampled_Real_Data_0.csv')
+    df2 = pd.read_csv('D:\Thesis\Dminik_data\data2\Sampled_Real_Data_15.csv')
+    df3 = pd.read_csv('D:\Thesis\Dminik_data\data2\Sampled_Real_Data_30.csv')
+    df4 = pd.read_csv('D:\Thesis\Dminik_data\data2\Sampled_Real_Data_45.csv')
+    # df5 = pd.read_csv('D:\Thesis\Sensitivity analysis\P3 Sampled sensitivity analysis_constant from PF.csv')
+    # df6 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q3 Sampled sensitivity analysis_constant from PF.csv')
+    # df7 = pd.read_csv('D:\Thesis\Sensitivity analysis\P4 Sampled sensitivity analysis_constant from PF.csv')
+    # df8 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q4 Sampled sensitivity analysis_constant from PF.csv')
+    # df9 = pd.read_csv('D:\Thesis\Sensitivity analysis\P5 Sampled sensitivity analysis_constant from PF.csv')
+    # df10 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q5 Sampled sensitivity analysis_constant from PF.csv')
+    # df11 = pd.read_csv('D:\Thesis\Sensitivity analysis\P6 Sampled sensitivity analysis_constant from PF.csv')
+    # df12 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q6 Sampled sensitivity analysis_constant from PF.csv')
+    # df13 = pd.read_csv('D:\Thesis\Sensitivity analysis\P7 Sampled sensitivity analysis_constant from PF.csv')
+    # df14 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q7 Sampled sensitivity analysis_constant from PF.csv')
+    # df15 = pd.read_csv('D:\Thesis\Sensitivity analysis\P8 Sampled sensitivity analysis_constant from PF.csv')
+    # df16 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q8 Sampled sensitivity analysis_constant from PF.csv')
+    # df17 = pd.read_csv('D:\Thesis\Sensitivity analysis\P9 Sampled sensitivity analysis_constant from PF.csv')
+    # df18 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q9 Sampled sensitivity analysis_constant from PF.csv')
+    # df19 = pd.read_csv('D:\Thesis\Sensitivity analysis\P10 Sampled sensitivity analysis_constant from PF.csv')
+    # df20 = pd.read_csv('D:\Thesis\Sensitivity analysis\Q10 Sampled sensitivity analysis_constant from PF.csv')
 
-    bigdata = pd.concat([df1, df2, df3,df4,df5,df6,df7,df8,df9,df10,df11,df12,df13,df14,df15,df16,df17,df18,df19,df20], ignore_index=True)
-    bigdata.to_csv('D:\Thesis\Sensitivity analysis final.csv')
+    bigdata = pd.concat([df1, df2, df3,df4],ignore_index=True)#df5,df6,df7,df8,df9,df10,df11,df12,df13,df14,df15,df16,df17,df18,df19,df20], ignore_index=True)
+    bigdata.to_csv('D:\Thesis\Dminik_data\data2\Sampled_Real_Data_CompleteData.csv')
 
 
 
@@ -160,25 +163,28 @@ def calculate_max_min_absolute_values(file):
 
 
 
-def get_top_abs_correlations(df):
+def get_top_abs_correlations(df,num,filter=False):
     column_name = list(df)
     df_list =[]
     au_corr = df.corr().abs().unstack().reset_index()
     au_corr.columns = ['var1', 'var2', 'value']
-    regexV = re.compile(r'^Volatge\d+$')
-    regexVa = re.compile(r'^Volatge angle\d+$')
+    regexV = re.compile(r'^Vm\d+$')
+    regexVa = re.compile(r'^Va\d+$')
     temp_df = pd.DataFrame()
     for names in column_name:
         temp_df = au_corr.loc[(au_corr['var1']== names) & (au_corr['var2']!= names)  ]
         #temp_df = temp_df.nlargest(6, 'value')
+        if (filter):
+            temp_df = temp_df[~(temp_df['var1'].str.contains('p')) | ~(temp_df['var2'].str.contains('p'))]
+            temp_df = temp_df[~(temp_df['var1'].str.contains('q')) | ~(temp_df['var2'].str.contains('q'))]
         if regexV.match(names):
-            temp_df = temp_df[temp_df['var2'].str.contains('^Volatge\d+$')]
-            temp_df = temp_df.nlargest(6, 'value')
+            temp_df = temp_df[temp_df['var2'].str.contains('^Vm\d+$')]
+            temp_df = temp_df.nlargest(num, 'value')
         elif regexVa.match(names):
-            temp_df = temp_df[temp_df['var2'].str.contains('^Volatge\d+$')]
-            temp_df = temp_df.nlargest(6,'value')
+            temp_df = temp_df[temp_df['var2'].str.contains('^^Va\d+$')]
+            temp_df = temp_df.nlargest(num,'value')
         else:
-            temp_df = temp_df.nlargest(6, 'value')
+            temp_df = temp_df.nlargest(num, 'value')
         df_list.append(temp_df)
     final_df = pd.concat(df_list)
     #labels_to_drop = get_redundant_pairs(df)
@@ -201,4 +207,6 @@ def normalizing_voltage(file):
     df.to_csv(file)
 
 
-normalizing_voltage('D:\Thesis\Training Data\Sampled monte carlo Data from PF.csv')
+#normalizing_voltage('D:\Thesis\Training Data\Sampled monte carlo Data from PF.csv')
+
+concat_df()
